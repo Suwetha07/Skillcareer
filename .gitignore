@@ -1,0 +1,7 @@
+node_modules
+dist
+.DS_Store
+.env
+frontend/node_modules
+services/**/node_modules
+api-gateway/node_modules
