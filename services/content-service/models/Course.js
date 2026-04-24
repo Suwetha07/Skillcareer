@@ -4,6 +4,12 @@ const AssignmentSchema = new mongoose.Schema({
   question: String,
   submission: String,
   score: { type: Number, default: 0 },
+  quiz: [{
+    prompt: String,
+    options: [String],
+    answer: String,
+  }],
+  passed: { type: Boolean, default: false },
 }, { _id: false });
 
 const MilestoneSchema = new mongoose.Schema({

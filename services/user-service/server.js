@@ -48,7 +48,7 @@ initializeDataSource().catch((err) => {
 
 app.post('/register', async (req, res) => {
   try {
-    const { name, email, password, role, interests, skills, experience } = req.body;
+    const { name, email, phone, password, role, interests, skills, experience } = req.body;
     if (useFallbackData) {
       const existing = fallbackUsers.find((item) => item.email === email);
       if (existing) return res.status(409).json({ message: 'Email already exists' });
@@ -57,6 +57,7 @@ app.post('/register', async (req, res) => {
         _id: randomUUID(),
         name,
         email,
+        phone: phone || '',
         password: hashedPassword,
         role,
         interests: interests || [],
@@ -65,14 +66,14 @@ app.post('/register', async (req, res) => {
       };
       fallbackUsers.push(user);
       const token = jwt.sign({ userId: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '8h' });
-      return res.status(201).json({ user: { id: user._id, name: user.name, email: user.email, role: user.role, interests: user.interests }, token });
+      return res.status(201).json({ user: { id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role, interests: user.interests }, token });
     }
     const existing = await User.findOne({ email });
     if (existing) return res.status(409).json({ message: 'Email already exists' });
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, password: hashedPassword, role, interests: interests || [], skills: skills || [], experience });
+    const user = await User.create({ name, email, phone: phone || '', password: hashedPassword, role, interests: interests || [], skills: skills || [], experience });
     const token = jwt.sign({ userId: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '8h' });
-    return res.status(201).json({ user: { id: user._id, name: user.name, email: user.email, role: user.role, interests: user.interests }, token });
+    return res.status(201).json({ user: { id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role, interests: user.interests }, token });
   } catch (err) {
     return res.status(400).json({ message: err.message || 'Registration failed' });
   }
@@ -87,14 +88,14 @@ app.post('/login', async (req, res) => {
       const valid = await bcrypt.compare(password, user.password);
       if (!valid) return res.status(401).json({ message: 'Invalid credentials' });
       const token = jwt.sign({ userId: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '8h' });
-      return res.json({ user: { id: user._id, name: user.name, email: user.email, role: user.role, interests: user.interests, skills: user.skills, experience: user.experience }, token });
+      return res.json({ user: { id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role, interests: user.interests, skills: user.skills, experience: user.experience }, token });
     }
     const user = await User.findOne({ email });
     if (!user) return res.status(401).json({ message: 'Invalid credentials' });
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(401).json({ message: 'Invalid credentials' });
     const token = jwt.sign({ userId: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '8h' });
-    return res.json({ user: { id: user._id, name: user.name, email: user.email, role: user.role, interests: user.interests, skills: user.skills, experience: user.experience }, token });
+    return res.json({ user: { id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role, interests: user.interests, skills: user.skills, experience: user.experience }, token });
   } catch (err) {
     return res.status(400).json({ message: err.message || 'Login failed' });
   }

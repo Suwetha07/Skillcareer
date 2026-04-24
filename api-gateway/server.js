@@ -26,18 +26,17 @@ function verifyJwt(req, res, next) {
 }
 
 const serviceRoutes = {
-  user: 'http://localhost:5001',
-  career: 'http://localhost:5002',
-  skill: 'http://localhost:5003',
-  roadmap: 'http://localhost:5004',
-  content: 'http://localhost:5005',
-  progress: 'http://localhost:5006',
+  user: 'http://127.0.0.1:5001',
+  career: 'http://127.0.0.1:5002',
+  skill: 'http://127.0.0.1:5003',
+  roadmap: 'http://127.0.0.1:5004',
+  content: 'http://127.0.0.1:5005',
+  progress: 'http://127.0.0.1:5006',
 };
 
 async function proxyRequest(req, res, targetUrl) {
   try {
-    const serviceKey = req.path.split('/')[2];
-    const forwardPath = req.originalUrl.replace(new RegExp(`^/api/${serviceKey}`), '') || '/';
+    const forwardPath = req.originalUrl.replace(req.baseUrl, '') || '/';
     const url = new URL(forwardPath, targetUrl);
     const forwardHeaders = { ...req.headers };
     delete forwardHeaders['content-length'];

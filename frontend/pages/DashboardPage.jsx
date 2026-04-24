@@ -23,14 +23,14 @@ export default function DashboardPage() {
       actions={<Link to="/profile" className="btn-secondary">Edit Profile</Link>}
     >
       <div className="grid gap-4 md:grid-cols-3">
-        <article className="card p-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-teal-700">Current Role</p>
-          <p className="mt-2 text-2xl font-extrabold text-slate-900">{user?.role || 'Unassigned'}</p>
+        <article className="gradient-stat">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#ffc79e]">Current Role</p>
+          <p className="mt-2 text-2xl font-extrabold">{user?.role || 'Unassigned'}</p>
           <p className="muted mt-2">Role-aligned recommendations are active.</p>
         </article>
         <article className="card p-5 md:col-span-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-teal-700">Focus Areas</p>
-          <p className="mt-2 text-lg font-semibold text-slate-900">{interests}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-fuchsia-300">Focus Areas</p>
+          <p className="mt-2 text-lg font-semibold text-white">{interests}</p>
           <p className="muted mt-2">These preferences shape your roadmap and content suggestions.</p>
         </article>
       </div>
@@ -38,9 +38,9 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {modules.map((item) => (
           <Link key={item.to} to={item.to} className="card card-hover p-5">
-            <h3 className="text-lg font-extrabold text-slate-900">{item.label}</h3>
-            <p className="mt-2 text-sm text-slate-600">{item.description}</p>
-            <p className="mt-4 text-sm font-semibold text-teal-700">Open module</p>
+            <h3 className="text-lg font-extrabold text-white">{item.label}</h3>
+            <p className="mt-2 text-sm soft-text">{item.description}</p>
+            <p className="mt-4 text-sm font-semibold text-fuchsia-300">Open module</p>
           </Link>
         ))}
       </div>

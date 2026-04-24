@@ -44,17 +44,18 @@ initializeDataSource().catch((err) => {
 });
 
 app.post('/analyze', async (req, res) => {
-  const { userSkills, careerSkills } = req.body;
+  const { userSkills, careerSkills, targetTechnology, targetCategory, stack } = req.body;
   const matched = userSkills.filter(skill => careerSkills.includes(skill));
   const missing = careerSkills.filter(skill => !userSkills.includes(skill));
   const score = Math.round((matched.length / careerSkills.length) * 100);
+  const level = score >= 80 ? 'advanced' : score >= 50 ? 'intermediate' : 'beginner';
   if (useFallbackData) {
-    const analysis = { _id: randomUUID(), userSkills, careerSkills, matched, missing, score };
+    const analysis = { _id: randomUUID(), userSkills, careerSkills, targetTechnology, targetCategory, stack, matched, missing, score, level };
     fallbackAnalyses.push(analysis);
-    return res.json({ matched, missing, score, analysisId: analysis._id });
+    return res.json({ matched, missing, score, level, targetTechnology, targetCategory, stack, analysisId: analysis._id });
   }
   const analysis = await SkillAnalysis.create({ userSkills, careerSkills, matched, missing, score });
-  res.json({ matched, missing, score, analysisId: analysis._id });
+  res.json({ matched, missing, score, level, targetTechnology, targetCategory, stack, analysisId: analysis._id });
 });
 
 app.listen(PORT, () => console.log(`Skill Service running on port ${PORT}`));

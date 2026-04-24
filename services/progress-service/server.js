@@ -43,18 +43,41 @@ initializeDataSource().catch((err) => {
 });
 
 app.post('/update', async (req, res) => {
-  const { userId, completedSkills, milestoneProgress, assignmentScores } = req.body;
+  const {
+    userId,
+    completedSkills = [],
+    milestoneProgress = [],
+    assignmentScores = [],
+    dailyHoursSpent = 0,
+    modulesCompleted = 0,
+    testsAttended = 0,
+    testsPassed = 0,
+    testsFailed = 0,
+    toolProgress = [],
+  } = req.body;
   const totalMilestones = milestoneProgress.length;
   const completedMilestones = milestoneProgress.filter(item => item.completed).length;
   const progressPercentage = totalMilestones ? Math.round((completedMilestones / totalMilestones) * 100) : 0;
   if (useFallbackData) {
-    const progress = { userId, completedSkills, milestoneProgress, assignmentScores, progressPercentage };
+    const progress = {
+      userId,
+      completedSkills,
+      milestoneProgress,
+      assignmentScores,
+      dailyHoursSpent,
+      modulesCompleted,
+      testsAttended,
+      testsPassed,
+      testsFailed,
+      toolProgress,
+      progressPercentage,
+    };
     fallbackProgress.set(userId, progress);
     return res.json(progress);
   }
   const progress = await Progress.findOneAndUpdate(
     { userId },
-    { completedSkills, milestoneProgress, assignmentScores, progressPercentage },
+    { completedSkills, milestoneProgress, assignmentScores, dailyHoursSpent, modulesCompleted, testsAttended, testsPassed, testsFailed, toolProgress, progressPercentage },
     { upsert: true, new: true }
   );
   res.json(progress);

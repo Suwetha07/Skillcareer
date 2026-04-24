@@ -44,14 +44,42 @@ initializeDataSource().catch((err) => {
 });
 
 const skillDurations = { beginner: 7, intermediate: 14, advanced: 21 };
+const topicLibrary = {
+  'JavaScript': ['Variables and scope', 'Functions and array methods', 'Async programming', 'DOM patterns'],
+  'Python': ['Syntax and data structures', 'Functions and modules', 'File handling', 'APIs and scripting'],
+  'Java': ['OOP basics', 'Collections', 'Spring intro', 'REST services'],
+  'TypeScript': ['Types and interfaces', 'Generics', 'Type narrowing', 'React integration'],
+  'React': ['Components and props', 'State and hooks', 'Routing', 'API integration'],
+  'Vue': ['Vue components', 'Composition API', 'State flow', 'Routing'],
+  'Angular': ['Components', 'Services and DI', 'RxJS basics', 'Routing'],
+  'CSS': ['Layouts', 'Flexbox and Grid', 'Responsive design', 'Animations'],
+  'Node.js': ['Runtime and modules', 'Express APIs', 'Authentication', 'Deployment'],
+  'Express': ['Routing', 'Middleware', 'Validation', 'Error handling'],
+  'Django': ['Project setup', 'Models and ORM', 'Views and APIs', 'Auth'],
+  'Spring Boot': ['Project setup', 'REST controllers', 'Data layer', 'Security'],
+  'MongoDB': ['Documents and collections', 'CRUD', 'Aggregation', 'Indexing'],
+  'PostgreSQL': ['Schema design', 'Queries and joins', 'Indexes', 'Transactions'],
+  'MySQL': ['Relational modeling', 'CRUD', 'Optimization', 'Stored routines'],
+  'Redis': ['Caching', 'Data structures', 'Pub/Sub', 'Session storage'],
+  'Docker': ['Containers', 'Dockerfiles', 'Compose', 'Optimization'],
+  'Kubernetes': ['Pods and deployments', 'Services', 'Config and secrets', 'Scaling'],
+  'AWS': ['Core services', 'IAM', 'Compute and storage', 'Monitoring'],
+  'CI/CD': ['Pipelines', 'Testing gates', 'Deploy flows', 'Release strategy'],
+  'OWASP': ['Top 10', 'Common vulnerabilities', 'Secure coding', 'Testing'],
+  'Authentication': ['Sessions and tokens', 'OAuth basics', 'MFA', 'Access control'],
+  'Authorization': ['RBAC', 'Permissions', 'Policy design', 'Audit trails'],
+  'Network Security': ['Protocols', 'Encryption', 'Firewalls', 'Threat detection'],
+};
 
 app.post('/generate', async (req, res) => {
-  const { role, interests, missingSkills, level, dailyStudyTime, completionTarget } = req.body;
+  const { role, interests, targetTechnology, targetCategory, missingSkills, score, dailyStudyTime = 2, completionTarget = 80 } = req.body;
+  const level = score >= 80 ? 'advanced' : score >= 50 ? 'intermediate' : 'beginner';
   const roadmap = missingSkills.map((skill, index) => ({
     skill,
     level,
     phase: index % 3 === 0 ? 'Foundations' : index % 3 === 1 ? 'Applied' : 'Mastery',
     durationDays: skillDurations[level] || 10,
+    subtopics: topicLibrary[skill] || [`${skill} fundamentals`, `${skill} implementation`, `${skill} practice project`, `${skill} interview prep`],
   }));
   const structured = roadmap.map((item, index) => ({
     ...item,
@@ -72,6 +100,8 @@ app.post('/generate', async (req, res) => {
       _id: randomUUID(),
       role,
       interests,
+      targetTechnology,
+      targetCategory,
       missingSkills,
       level,
       dailyStudyTime,
@@ -83,7 +113,7 @@ app.post('/generate', async (req, res) => {
     fallbackRoadmaps.push(roadmapDoc);
     return res.json(roadmapDoc);
   }
-  const roadmapDoc = await Roadmap.create({ role, interests, missingSkills, level, dailyStudyTime, completionTarget, structured, schedule, totalDays: days });
+  const roadmapDoc = await Roadmap.create({ role, interests, targetTechnology, targetCategory, missingSkills, level, dailyStudyTime, completionTarget, structured, schedule, totalDays: days });
   res.json(roadmapDoc);
 });
 

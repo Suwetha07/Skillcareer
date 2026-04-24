@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useNotifications } from '../context/NotificationContext';
 import { useNavigate } from 'react-router-dom';
 import AppShell from '../components/AppShell';
 import api, { authConfig } from '../api';
@@ -14,6 +15,7 @@ export default function ProfilePage() {
   const [name, setName] = useState(user?.name || '');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const { notify } = useNotifications();
 
   useEffect(() => {
     if (!token) navigate('/login');
@@ -31,9 +33,12 @@ export default function ProfilePage() {
       const { data } = await api.put('/user/profile/update', { name, role, interests, experience }, authConfig(token));
       setUser(data);
       setMessage('Profile updated successfully.');
+      notify({ title: 'Profile updated successfully', message: 'Your recommendations are refreshed.', type: 'success' });
       navigate('/dashboard');
     } catch (err) {
-      setMessage(err.response?.data?.message || err.message || 'Update failed');
+      const errorMessage = err.response?.data?.message || err.message || 'Update failed';
+      setMessage(errorMessage);
+      notify({ title: 'Profile update failed', message: errorMessage, type: 'error' });
     }
   };
 
@@ -80,10 +85,10 @@ export default function ProfilePage() {
                   key={interest}
                   type="button"
                   onClick={() => toggleInterest(interest)}
-                  className={`rounded-xl border px-3 py-2 text-sm font-semibold transition ${
+                  className={`rounded-2xl border px-3 py-2.5 text-sm font-semibold transition ${
                     active
-                      ? 'border-teal-200 bg-teal-50 text-teal-800'
-                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                      ? 'border-[#ff916d]/50 bg-[linear-gradient(135deg,rgba(255,0,184,0.18),rgba(255,145,109,0.18))] text-white'
+                      : 'border-white/10 bg-white/5 text-white/72 hover:bg-white/10'
                   }`}
                 >
                   {interest}
@@ -93,7 +98,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {message ? <p className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">{message}</p> : null}
+        {message ? <p className="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/84">{message}</p> : null}
 
         <div className="mt-5 flex justify-end">
           <button className="btn-primary" type="submit">Save Profile</button>

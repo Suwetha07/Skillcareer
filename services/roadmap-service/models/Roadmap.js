@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const RoadmapSchema = new mongoose.Schema({
   role: String,
   interests: [String],
+  targetTechnology: String,
+  targetCategory: String,
   missingSkills: [String],
   level: String,
   dailyStudyTime: Number,
@@ -14,6 +16,7 @@ const RoadmapSchema = new mongoose.Schema({
     durationDays: Number,
     order: Number,
     sessions: Number,
+    subtopics: [String],
   }],
   schedule: [{ day: Number, skill: String, topic: String, date: String }],
   totalDays: Number,
