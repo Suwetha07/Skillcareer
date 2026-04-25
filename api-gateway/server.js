@@ -26,12 +26,12 @@ function verifyJwt(req, res, next) {
 }
 
 const serviceRoutes = {
-  user: 'http://127.0.0.1:5001',
-  career: 'http://127.0.0.1:5002',
-  skill: 'http://127.0.0.1:5003',
-  roadmap: 'http://127.0.0.1:5004',
-  content: 'http://127.0.0.1:5005',
-  progress: 'http://127.0.0.1:5006',
+  user: process.env.USER_SERVICE_URL || 'http://127.0.0.1:5001',
+  career: process.env.CAREER_SERVICE_URL || 'http://127.0.0.1:5002',
+  skill: process.env.SKILL_SERVICE_URL || 'http://127.0.0.1:5003',
+  roadmap: process.env.ROADMAP_SERVICE_URL || 'http://127.0.0.1:5004',
+  content: process.env.CONTENT_SERVICE_URL || 'http://127.0.0.1:5005',
+  progress: process.env.PROGRESS_SERVICE_URL || 'http://127.0.0.1:5006',
 };
 
 async function proxyRequest(req, res, targetUrl) {
