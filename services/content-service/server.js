@@ -9,16 +9,91 @@ const PORT = process.env.PORT || 5005;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/content-service';
 const USE_IN_MEMORY_FALLBACK = process.env.USE_IN_MEMORY_FALLBACK === 'true';
 const skillResourceMap = {
-  'JavaScript': ['https://developer.mozilla.org/en-US/docs/Web/JavaScript', 'https://www.youtube.com/watch?v=W6NZfCO5SIk', 'https://javascript.info/'],
-  'Python': ['https://docs.python.org/3/tutorial/', 'https://www.youtube.com/watch?v=_uQrJ0TkZlc', 'https://realpython.com/'],
-  'Java': ['https://docs.oracle.com/javase/tutorial/', 'https://www.youtube.com/watch?v=eIrMbAQSU34', 'https://spring.io/guides'],
-  'TypeScript': ['https://www.typescriptlang.org/docs/', 'https://www.youtube.com/watch?v=30LWjhZzg50', 'https://www.totaltypescript.com/'],
-  'React': ['https://react.dev/learn', 'https://www.youtube.com/watch?v=bMknfKXIFA8', 'https://roadmap.sh/react'],
-  'Node.js': ['https://nodejs.org/en/learn', 'https://www.youtube.com/watch?v=TlB_eWDSMt4', 'https://expressjs.com/'],
-  'MongoDB': ['https://www.mongodb.com/docs/', 'https://www.youtube.com/watch?v=ofme2o29ngU', 'https://www.mongodb.com/developer/'],
-  'Docker': ['https://docs.docker.com/get-started/', 'https://www.youtube.com/watch?v=Gjnup-PuquQ', 'https://www.freecodecamp.org/news/what-is-docker/'],
-  'Kubernetes': ['https://kubernetes.io/docs/home/', 'https://www.youtube.com/watch?v=X48VuDVv0do', 'https://roadmap.sh/kubernetes'],
-  'AWS': ['https://docs.aws.amazon.com/', 'https://www.youtube.com/watch?v=ulprqHHWlng', 'https://aws.amazon.com/getting-started/'],
+  'JavaScript': {
+    foundation: [
+      { label: 'JavaScript Basics', url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Introduction' },
+      { label: 'ES6+ Essentials', url: 'https://www.youtube.com/watch?v=W6NZfCO5SIk' },
+      { label: 'Variables, Arrays, and Functions', url: 'https://javascript.info/first-steps' },
+    ],
+    implementation: [
+      { label: 'Synchronous vs Asynchronous JavaScript', url: 'https://javascript.info/event-loop' },
+      { label: 'Promises and Async/Await', url: 'https://javascript.info/async' },
+      { label: 'Working with Fetch API', url: 'https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch' },
+    ],
+    project: [
+      { label: 'DOM Project Walkthrough', url: 'https://www.youtube.com/watch?v=0ik6X4DJKCc' },
+      { label: 'Build a Small JavaScript App', url: 'https://javascript30.com/' },
+      { label: 'JavaScript Best Practices', url: 'https://developer.mozilla.org/en-US/docs/Learn/JavaScript/First_steps/What_went_wrong' },
+    ],
+  },
+  'Python': {
+    foundation: [
+      { label: 'Python Basics', url: 'https://docs.python.org/3/tutorial/introduction.html' },
+      { label: 'Data Types and Control Flow', url: 'https://www.youtube.com/watch?v=_uQrJ0TkZlc' },
+      { label: 'Functions and Modules', url: 'https://realpython.com/defining-your-own-python-function/' },
+    ],
+    implementation: [
+      { label: 'File Handling', url: 'https://docs.python.org/3/tutorial/inputoutput.html' },
+      { label: 'APIs with Python', url: 'https://realpython.com/api-integration-in-python/' },
+      { label: 'Error Handling', url: 'https://realpython.com/python-exceptions/' },
+    ],
+    project: [
+      { label: 'Mini Python Project', url: 'https://realpython.com/tutorials/projects/' },
+      { label: 'Automation Practice', url: 'https://automatetheboringstuff.com/' },
+      { label: 'Python Best Practices', url: 'https://realpython.com/python-pep8/' },
+    ],
+  },
+  'React': {
+    foundation: [
+      { label: 'React Components', url: 'https://react.dev/learn/your-first-component' },
+      { label: 'JSX and Props', url: 'https://react.dev/learn/passing-props-to-a-component' },
+      { label: 'State Basics', url: 'https://react.dev/learn/state-a-components-memory' },
+    ],
+    implementation: [
+      { label: 'Effects and Data Fetching', url: 'https://react.dev/learn/synchronizing-with-effects' },
+      { label: 'Routing Basics', url: 'https://reactrouter.com/en/main/start/tutorial' },
+      { label: 'Forms and Controlled Inputs', url: 'https://react.dev/reference/react-dom/components/input' },
+    ],
+    project: [
+      { label: 'Build a React Project', url: 'https://www.youtube.com/watch?v=bMknfKXIFA8' },
+      { label: 'Project Structure and Reuse', url: 'https://react.dev/learn/thinking-in-react' },
+      { label: 'React Performance Basics', url: 'https://react.dev/learn/render-and-commit' },
+    ],
+  },
+  'Node.js': {
+    foundation: [
+      { label: 'Node.js Basics', url: 'https://nodejs.org/en/learn/getting-started/introduction-to-nodejs' },
+      { label: 'Modules and NPM', url: 'https://nodejs.org/en/learn/command-line/an-introduction-to-the-npm-package-manager' },
+      { label: 'File System and CLI', url: 'https://nodejs.org/en/learn/manipulating-files/working-with-files-in-nodejs' },
+    ],
+    implementation: [
+      { label: 'HTTP and Express Basics', url: 'https://expressjs.com/' },
+      { label: 'Async Patterns in Node.js', url: 'https://nodejs.org/en/learn/asynchronous-work/asynchronous-flow-control' },
+      { label: 'Authentication Flow', url: 'https://nodejs.org/en/learn/getting-started/security-best-practices' },
+    ],
+    project: [
+      { label: 'Build a REST API', url: 'https://www.youtube.com/watch?v=TlB_eWDSMt4' },
+      { label: 'Testing and Validation', url: 'https://nodejs.org/en/learn/test-runner/using-nodejs-test-runner' },
+      { label: 'Deployment Basics', url: 'https://nodejs.org/en/learn/getting-started/nodejs-with-docker' },
+    ],
+  },
+  'Docker': {
+    foundation: [
+      { label: 'Docker Basics', url: 'https://docs.docker.com/get-started/' },
+      { label: 'Images and Containers', url: 'https://www.youtube.com/watch?v=Gjnup-PuquQ' },
+      { label: 'Docker CLI Practice', url: 'https://www.freecodecamp.org/news/what-is-docker/' },
+    ],
+    implementation: [
+      { label: 'Dockerfiles', url: 'https://docs.docker.com/build/concepts/dockerfile/' },
+      { label: 'Docker Compose', url: 'https://docs.docker.com/compose/' },
+      { label: 'Container Networking', url: 'https://docs.docker.com/network/' },
+    ],
+    project: [
+      { label: 'Containerize an App', url: 'https://docs.docker.com/get-started/workshop/' },
+      { label: 'Debugging Containers', url: 'https://docs.docker.com/reference/cli/docker/container/logs/' },
+      { label: 'Docker Best Practices', url: 'https://docs.docker.com/develop/dev-best-practices/' },
+    ],
+  },
 };
 const fallbackCourses = [];
 let useFallbackData = false;
@@ -39,12 +114,25 @@ function createQuiz(skill, stage) {
 }
 
 function buildCourse(skill) {
-  const resources = skillResourceMap[skill] || [
-    `https://www.youtube.com/results?search_query=${encodeURIComponent(`${skill} tutorial`)}`,
-    `https://roadmap.sh/search?q=${encodeURIComponent(skill)}`,
-    `https://www.google.com/search?q=${encodeURIComponent(`${skill} documentation`)}`,
-  ];
+  const resourceSet = skillResourceMap[skill] || {
+    foundation: [
+      { label: `${skill} Basics`, url: `https://www.youtube.com/results?search_query=${encodeURIComponent(`${skill} basics`)}` },
+      { label: `${skill} Official Documentation`, url: `https://www.google.com/search?q=${encodeURIComponent(`${skill} official documentation`)}` },
+      { label: `${skill} Core Concepts`, url: `https://roadmap.sh/search?q=${encodeURIComponent(skill)}` },
+    ],
+    implementation: [
+      { label: `${skill} Practical Implementation`, url: `https://www.youtube.com/results?search_query=${encodeURIComponent(`${skill} implementation tutorial`)}` },
+      { label: `${skill} Intermediate Guide`, url: `https://www.google.com/search?q=${encodeURIComponent(`${skill} intermediate guide`)}` },
+      { label: `${skill} Hands-on Walkthrough`, url: `https://www.google.com/search?q=${encodeURIComponent(`${skill} hands on walkthrough`)}` },
+    ],
+    project: [
+      { label: `${skill} Project Tutorial`, url: `https://www.youtube.com/results?search_query=${encodeURIComponent(`${skill} project tutorial`)}` },
+      { label: `${skill} Real Project Examples`, url: `https://www.google.com/search?q=${encodeURIComponent(`${skill} project examples`)}` },
+      { label: `${skill} Best Practices`, url: `https://www.google.com/search?q=${encodeURIComponent(`${skill} best practices`)}` },
+    ],
+  };
   const stages = ['Foundation Level', 'Implementation Level', 'Project Level'];
+  const stageKeys = ['foundation', 'implementation', 'project'];
   return {
     _id: `course-${skill.toLowerCase().replace(/\s+/g, '-')}`,
     skill,
@@ -54,7 +142,7 @@ function buildCourse(skill) {
       title: `${skill} ${stage}`,
       description: `Reach ${stage.toLowerCase()} proficiency in ${skill} with focused practice and milestone evaluation.`,
       order: index + 1,
-      resources,
+      resources: resourceSet[stageKeys[index]] || [],
       assignment: {
         question: `MCQ assessment for ${skill} ${stage}`,
         submission: '',

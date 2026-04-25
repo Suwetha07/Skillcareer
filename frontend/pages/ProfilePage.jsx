@@ -87,8 +87,8 @@ export default function ProfilePage() {
                   onClick={() => toggleInterest(interest)}
                   className={`rounded-2xl border px-3 py-2.5 text-sm font-semibold transition ${
                     active
-                      ? 'border-[#ff916d]/50 bg-[linear-gradient(135deg,rgba(255,0,184,0.18),rgba(255,145,109,0.18))] text-white'
-                      : 'border-white/10 bg-white/5 text-white/72 hover:bg-white/10'
+                      ? 'border-[#ff916d]/55 bg-[linear-gradient(135deg,rgba(255,0,184,0.3),rgba(255,145,109,0.28))] text-white shadow-[0_14px_28px_rgba(255,0,184,0.18)]'
+                      : 'border-white/14 bg-white/10 text-white/92 hover:bg-white/14'
                   }`}
                 >
                   {interest}
