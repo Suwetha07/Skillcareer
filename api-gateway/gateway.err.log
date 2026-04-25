@@ -1,0 +1,449 @@
+kind: ConfigMap
+metadata:
+  name: skillconfig
+  namespace: 
+data:
+  MONGO_URI_USER: mongodb://mongodb:27017/userdb
+  USER_SERVICE_URL: http://user-service:3001
+apiVersion: v1
+kind: Secret
+metadata:
+  name: clahanstore-secrets
+  namespace: clahanstore
+type: Opaque
+stringData:
+  MONGO_URI_USER: "mongodb://mongodb.clahanstore.svc.cluster.local:27017/userdb"
+ 
+  MONGO_URI_ADMIN: "mongodb://mongodb.clahanstore.svc.cluster.local:27017/admindb"
+  JWT_SECRET: "supersecretjwtkey_12345"
+front end de[loyment apiVersion: v1
+kind: Namespace
+metadata:
+  name: clahanstore
+---
+# =============================================
+# FRONTEND DEPLOYMENTS (Standard Deployments)
+# =============================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: clahanstore
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+      - name: api-gateway
+        image: team4devops/ecommerce-api-gateway:v1.0.0
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - configMapRef:
+            name: clahanstore-config
+        resources:
+          requests:
+            cpu: 25m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+/
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb
+  namespace: clahanstore
+spec:
+  serviceName: "mongodb"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:6.0
+        ports:
+        - containerPort: 27017
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        volumeMounts:
+        - name: mongodata
+          mountPath: /data/db
+  volumeClaimTemplates:
+  - metadata:
+      name: mongodata
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "ebs-sc"
+      resources:
+        requests:
+          storage: 1Gi  
+//
+hpa 
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: frontend-ui-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: frontend-ui
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+      - type: Pods
+        value: 4
+        periodSeconds: 15
+# =============================================
+# BACKEND STATEFULSETS (with MongoDB init check)
+# =============================================
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: user-service
+  namespace: clahanstore
+spec:
+  serviceName: user-service
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      initContainers:
+      - name: wait-for-mongodb
+        image: busybox:1.36
+        command: ['sh', '-c', 'echo "Waiting for MongoDB..."; until nc -z mongodb 27017; do sleep 2; done; echo "MongoDB is ready!"']
+      containers:
+      - name: user-service
+        image: team4devops/ecommerce-user-service:v1.0.0
+        ports:
+        - containerPort: 3001
+        env:
+        - name: PORT
+          value: '3001'
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: clahanstore-secrets
+              key: MONGO_URI_USER
+        resources:
+          requests:
+            cpu: 25m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3  \\
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: ecommerce-gateway
+  namespace: clahanstore
+spec:
+  gatewayClassName: kgateway
+  listeners:
+  - name: http
+    protocol: HTTP
+    port: 80
+    allowedRoutes:
+      namespaces:
+        from: Same
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: frontend-route
+  namespace: clahanstore
+spec:
+  parentRefs:
+  - name: ecommerce-gateway
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /api
+    backendRefs:
+    - name: api-gateway
+      port: 3000
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /user
+    backendRefs:
+    - name: user-service
+      port: 3001
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /auth
+    backendRefs:
+    - name: auth-service
+      port: 3002
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /product
+    backendRefs:
+    - name: product-service
+      port: 3003
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /search
+    backendRefs:
+    - name: search-service
+      port: 3004
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /inventory
+    backendRefs:
+    - name: inventory-service
+      port: 3005
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /cart
+    backendRefs:
+    - name: cart-service
+      port: 3006
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /wishlist
+    backendRefs:
+    - name: wishlist-service
+      port: 3007
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /order
+    backendRefs:
+    - name: order-service
+      port: 3008
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /payment
+    backendRefs:
+    - name: payment-service
+      port: 3009
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /invoice
+    backendRefs:
+    - name: invoice-service
+      port: 3010
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /shipping
+    backendRefs:
+    - name: shipping-service
+      port: 3011
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /review
+    backendRefs:
+    - name: review-rating-service
+      port: 3012
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /recommendation
+    backendRefs:
+    - name: recommendation-service
+      port: 3013
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /admin
+    backendRefs:
+    - name: admin-service
+      port: 3014
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: frontend-ui
+      port: 80  like 
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  namespace: clahanstore
+spec:
+  clusterIP: None
+  selector:
+    app: mongodb
+  ports:
+  - port: 27017
+    targetPort: 27017
+---
+# =============================================
+# FRONTEND SERVICES (Standard ClusterIP)
+# =============================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  namespace: clahanstore
+spec:
+  selector:
+    app: api-gateway
+  ports:
+  - port: 3000
+    targetPort: 3000
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-ui
+  namespace: clahanstore
+spec:
+  selector:
+    app: frontend-ui
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP
+---
+# =============================================
+# BACKEND SERVICES (Headless - clusterIP: None)
+# =============================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: clahanstore
+spec:
+  clusterIP: None
+  selector:
+    app: user-service
+  ports:
+  - port: 3001
+    targetPort: 3001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: clahanstore
+spec:
+  clusterIP: None
+  selector:
+    app: auth-service
+  ports:
+  - port: 3002
+    targetPort: 3002
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service
+  namespace: clahanstore
+spec:
+  clusterIP: None
+  selector:
+    app: product-service
+  ports:
+  - port: 3003
+    targetPort: 3003
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: search-service
+  namespace: clahanstore
+spec:
+  clusterIP: None
+  selector:
+    app: search-service
+  ports:
+  - port: 3004
+    targetPort: 3004
