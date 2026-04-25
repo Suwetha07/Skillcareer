@@ -1,7 +1,7 @@
 services:
   mongo:
     image: mongo:7
-    container_name: skillcodex-mongo
+    container_name: skillcareer-mongo
     restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
