@@ -11,6 +11,12 @@ services:
       - "${MONGO_PORT}:27017"
     volumes:
       - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--username", "${MONGO_ROOT_USERNAME}", "--password", "${MONGO_ROOT_PASSWORD}", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
 
   user-service:
     build:
@@ -24,7 +30,8 @@ services:
       MONGO_URI: ${USER_SERVICE_MONGO_URI}
       USE_IN_MEMORY_FALLBACK: ${USE_IN_MEMORY_FALLBACK}
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     ports:
       - "${USER_SERVICE_PORT}:5001"
 
@@ -39,7 +46,8 @@ services:
       MONGO_URI: ${CAREER_SERVICE_MONGO_URI}
       USE_IN_MEMORY_FALLBACK: ${USE_IN_MEMORY_FALLBACK}
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     ports:
       - "${CAREER_SERVICE_PORT}:5002"
 
@@ -54,7 +62,8 @@ services:
       MONGO_URI: ${SKILL_SERVICE_MONGO_URI}
       USE_IN_MEMORY_FALLBACK: ${USE_IN_MEMORY_FALLBACK}
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     ports:
       - "${SKILL_SERVICE_PORT}:5003"
 
@@ -69,7 +78,8 @@ services:
       MONGO_URI: ${ROADMAP_SERVICE_MONGO_URI}
       USE_IN_MEMORY_FALLBACK: ${USE_IN_MEMORY_FALLBACK}
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     ports:
       - "${ROADMAP_SERVICE_PORT}:5004"
 
@@ -84,7 +94,8 @@ services:
       MONGO_URI: ${CONTENT_SERVICE_MONGO_URI}
       USE_IN_MEMORY_FALLBACK: ${USE_IN_MEMORY_FALLBACK}
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     ports:
       - "${CONTENT_SERVICE_PORT}:5005"
 
@@ -99,7 +110,8 @@ services:
       MONGO_URI: ${PROGRESS_SERVICE_MONGO_URI}
       USE_IN_MEMORY_FALLBACK: ${USE_IN_MEMORY_FALLBACK}
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     ports:
       - "${PROGRESS_SERVICE_PORT}:5006"
 
@@ -143,4 +155,3 @@ services:
 
 volumes:
   mongo-data:
-  

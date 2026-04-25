@@ -12,11 +12,16 @@ const AssignmentSchema = new mongoose.Schema({
   passed: { type: Boolean, default: false },
 }, { _id: false });
 
+const ResourceSchema = new mongoose.Schema({
+  label: { type: String, default: '' },
+  url: { type: String, required: true },
+}, { _id: false });
+
 const MilestoneSchema = new mongoose.Schema({
   title: String,
   description: String,
   order: Number,
-  resources: [String],
+  resources: [ResourceSchema],
   assignment: AssignmentSchema,
   completed: { type: Boolean, default: false },
 });
