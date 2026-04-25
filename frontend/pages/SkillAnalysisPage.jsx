@@ -119,8 +119,8 @@ export default function SkillAnalysisPage() {
 
         <article className="card p-5">
           <h3 className="text-base font-extrabold text-white">Target Technology</h3>
-          <p className="mt-2 text-sm text-white/82">{selection.technology}</p>
-          <p className="mt-1 text-sm text-white/68">{selection.stack}</p>
+          <p className="mt-2 text-base font-bold text-white">{selection.technology}</p>
+          <p className="mt-1 text-sm text-white/88">{selection.stack}</p>
 
           <div className="mt-4">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#ffd5b8]">Target Stack Skills</p>
@@ -145,8 +145,8 @@ export default function SkillAnalysisPage() {
               <p className="mt-2 text-sm text-white/80">Frozen level: {result.level}</p>
             </div>
             <div className="surface-panel md:col-span-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/60">Matched Skills</p>
-              <p className="mt-2 text-sm text-white/88">{result.matched?.join(', ') || 'None yet'}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#ffd5b8]">Matched Skills</p>
+              <p className="mt-2 text-sm text-white">{result.matched?.join(', ') || 'None yet'}</p>
             </div>
           </div>
 

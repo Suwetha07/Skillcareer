@@ -31,7 +31,7 @@ export default function AppShell({ title, subtitle, actions, children }) {
               </span>
               <div>
                 <p className="text-lg font-extrabold tracking-tight">SkillReach</p>
-                <p className="text-[11px] uppercase tracking-[0.28em] text-white/45">Career Intelligence</p>
+                <p className="text-[11px] uppercase tracking-[0.28em] text-white/65">Career Intelligence</p>
               </div>
             </div>
           </div>
@@ -39,7 +39,7 @@ export default function AppShell({ title, subtitle, actions, children }) {
           <div className="space-y-8 p-5">
             <div>
               <p className="text-sm font-semibold text-white">{user?.name || 'Learner'}</p>
-              <p className="text-xs uppercase tracking-[0.22em] text-white/45">{user?.role || 'Member'}</p>
+              <p className="text-xs uppercase tracking-[0.22em] text-white/68">{user?.role || 'Member'}</p>
             </div>
 
             <nav className="space-y-2">
@@ -63,7 +63,7 @@ export default function AppShell({ title, subtitle, actions, children }) {
             <div className="rounded-[1.75rem] border border-[#ff916d]/20 bg-[linear-gradient(135deg,rgba(255,0,184,0.12),rgba(255,145,109,0.12))] p-4">
               <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#ffd5b8]">Active Focus</p>
               <p className="mt-3 text-lg font-extrabold text-white">{currentSection}</p>
-              <p className="mt-2 text-sm leading-6 text-white/82">Stay aligned with your roadmap, assignments, and weekly progress signals.</p>
+              <p className="mt-2 text-sm leading-6 text-white/95">Stay aligned with your roadmap, assignments, and weekly progress signals.</p>
             </div>
 
             <button onClick={logout} className="btn-secondary w-full">
@@ -78,7 +78,7 @@ export default function AppShell({ title, subtitle, actions, children }) {
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#ffc79e]">{currentSection}</p>
                 <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-white md:text-5xl">{title}</h2>
-                {subtitle ? <p className="mt-4 max-w-2xl text-base leading-8 text-white/62">{subtitle}</p> : null}
+                {subtitle ? <p className="mt-4 max-w-2xl text-base leading-8 text-white/80">{subtitle}</p> : null}
               </div>
               <div className="flex flex-wrap items-center gap-2">{actions}</div>
             </div>

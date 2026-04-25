@@ -82,7 +82,7 @@ export default function CareerPage() {
         <section className="card p-5">
           <div className="mb-4">
             <h3 className="text-lg font-extrabold text-white">Course Catalogue for {selectedCategory}</h3>
-            <p className="mt-2 text-sm text-white/78">Pick one technology to view relevant skills, hiring companies, and matching job roles.</p>
+            <p className="mt-2 text-sm text-white/90">Pick one technology to view relevant skills, hiring companies, and matching job roles.</p>
           </div>
 
           <div className="grid gap-4 xl:grid-cols-2">
@@ -94,13 +94,13 @@ export default function CareerPage() {
                   type="button"
                   onClick={() => setSelectedTechnology(technology)}
                   className={`card p-5 text-left transition ${
-                    active ? 'border-[#ff916d]/40 shadow-[0_24px_48px_rgba(255,0,184,0.14)]' : ''
+                    active ? 'border-[#ff916d]/45 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03)),linear-gradient(135deg,rgba(34,15,42,0.96),rgba(15,8,23,0.95))] shadow-[0_24px_48px_rgba(255,0,184,0.14)]' : ''
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <h4 className="text-xl font-extrabold text-white">{technology.name}</h4>
-                      <p className="mt-2 text-sm text-white/76">{technology.stack}</p>
+                      <p className="mt-2 text-sm text-white/90">{technology.stack}</p>
                     </div>
                     <span className={`chip ${active ? 'chip-active' : ''}`}>{technology.skills.length} skills</span>
                   </div>
@@ -114,12 +114,12 @@ export default function CareerPage() {
 
                   <div className="mt-4 grid gap-3 md:grid-cols-2">
                     <div className="surface-panel">
-                      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/60">Companies</p>
-                      <p className="mt-2 text-sm text-white/88">{technology.companies.join(', ')}</p>
+                      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#ffd5b8]">Companies</p>
+                      <p className="mt-2 text-sm font-semibold text-white">{technology.companies.join(', ')}</p>
                     </div>
                     <div className="surface-panel">
-                      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/60">Roles</p>
-                      <p className="mt-2 text-sm text-white/88">{technology.roles.join(', ')}</p>
+                      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#ffd5b8]">Roles</p>
+                      <p className="mt-2 text-sm font-semibold text-white">{technology.roles.join(', ')}</p>
                     </div>
                   </div>
                 </button>
