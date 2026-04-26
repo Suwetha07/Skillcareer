@@ -22,7 +22,7 @@ spec:
           command: ["sh", "-c", "until nc -z mongodb 27017; do echo waiting for mongodb; sleep 2; done"]
       containers:
         - name: user-service
-          image: suwetha07/skillcareer-user-service:v1.0.0
+          image: suwetha07/skillcareer-user-service:v1.0.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5001
@@ -86,7 +86,7 @@ spec:
           command: ["sh", "-c", "until nc -z mongodb 27017; do echo waiting for mongodb; sleep 2; done"]
       containers:
         - name: career-service
-          image: suwetha07/skillcareer-career-service:v1.0.0
+          image: suwetha07/skillcareer-career-service:v1.0.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5002
@@ -145,7 +145,7 @@ spec:
           command: ["sh", "-c", "until nc -z mongodb 27017; do echo waiting for mongodb; sleep 2; done"]
       containers:
         - name: skill-service
-          image: suwetha07/skillcareer-skill-service:v1.0.0
+          image: suwetha07/skillcareer-skill-service:v1.0.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5003
@@ -204,7 +204,7 @@ spec:
           command: ["sh", "-c", "until nc -z mongodb 27017; do echo waiting for mongodb; sleep 2; done"]
       containers:
         - name: roadmap-service
-          image: suwetha07/skillcareer-roadmap-service:v1.0.0
+          image: suwetha07/skillcareer-roadmap-service:v1.0.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5004
@@ -263,7 +263,7 @@ spec:
           command: ["sh", "-c", "until nc -z mongodb 27017; do echo waiting for mongodb; sleep 2; done"]
       containers:
         - name: content-service
-          image: suwetha07/skillcareer-content-service:v1.0.0
+          image: suwetha07/skillcareer-content-service:v1.0.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5005
@@ -322,7 +322,7 @@ spec:
           command: ["sh", "-c", "until nc -z mongodb 27017; do echo waiting for mongodb; sleep 2; done"]
       containers:
         - name: progress-service
-          image: suwetha07/skillcareer-progress-service:v1.0.0
+          image: suwetha07/skillcareer-progress-service:v1.0.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5006
@@ -381,7 +381,7 @@ spec:
           command: ["sh", "-c", "until nc -z mongodb 27017; do echo waiting for mongodb; sleep 2; done"]
       containers:
         - name: user-service
-          image: suwetha07/skillcareer-user-service:v1.0.0
+          image: suwetha07/skillcareer-user-service:v1.0.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5001
@@ -445,7 +445,7 @@ spec:
           command: ["sh", "-c", "until nc -z mongodb 27017; do echo waiting for mongodb; sleep 2; done"]
       containers:
         - name: career-service
-          image: suwetha07/skillcareer-career-service:v1.0.0
+          image: suwetha07/skillcareer-career-service:v1.0.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5002
@@ -504,7 +504,7 @@ spec:
           command: ["sh", "-c", "until nc -z mongodb 27017; do echo waiting for mongodb; sleep 2; done"]
       containers:
         - name: skill-service
-          image: suwetha07/skillcareer-skill-service:v1.0.0
+          image: suwetha07/skillcareer-skill-service:v1.0.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5003
@@ -563,7 +563,7 @@ spec:
           command: ["sh", "-c", "until nc -z mongodb 27017; do echo waiting for mongodb; sleep 2; done"]
       containers:
         - name: roadmap-service
-          image: suwetha07/skillcareer-roadmap-service:v1.0.0
+          image: suwetha07/skillcareer-roadmap-service:v1.0.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5004
@@ -622,7 +622,7 @@ spec:
           command: ["sh", "-c", "until nc -z mongodb 27017; do echo waiting for mongodb; sleep 2; done"]
       containers:
         - name: content-service
-          image: suwetha07/skillcareer-content-service:v1.0.0
+          image: suwetha07/skillcareer-content-service:v1.0.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5005
@@ -681,7 +681,7 @@ spec:
           command: ["sh", "-c", "until nc -z mongodb 27017; do echo waiting for mongodb; sleep 2; done"]
       containers:
         - name: progress-service
-          image: suwetha07/skillcareer-progress-service:v1.0.0
+          image: suwetha07/skillcareer-progress-service:v1.0.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5006
@@ -715,3 +715,4 @@ spec:
               port: 5006
             initialDelaySeconds: 15
             periodSeconds: 20
+

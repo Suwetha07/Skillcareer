@@ -10,14 +10,14 @@ Helm install:
 2. `helm upgrade --install skillcareer-prod ./k8s/helm/skillcareer -f ./k8s/prod/values.yaml -n prod --create-namespace`
 
 Docker images used:
-- suwetha07/skillcareer-frontend:v1.0.0
-- suwetha07/skillcareer-api-gateway:v1.0.0
-- suwetha07/skillcareer-user-service:v1.0.0
-- suwetha07/skillcareer-career-service:v1.0.0
-- suwetha07/skillcareer-skill-service:v1.0.0
-- suwetha07/skillcareer-roadmap-service:v1.0.0
-- suwetha07/skillcareer-content-service:v1.0.0
-- suwetha07/skillcareer-progress-service:v1.0.0
+- suwetha07/skillcareer-frontend:v1.0.1
+- suwetha07/skillcareer-api-gateway:v1.0.1
+- suwetha07/skillcareer-user-service:v1.0.1
+- suwetha07/skillcareer-career-service:v1.0.1
+- suwetha07/skillcareer-skill-service:v1.0.1
+- suwetha07/skillcareer-roadmap-service:v1.0.1
+- suwetha07/skillcareer-content-service:v1.0.1
+- suwetha07/skillcareer-progress-service:v1.0.1
 
 Project ports:
 - frontend: 5173
@@ -35,3 +35,4 @@ Notes:
 - direct backend routes are also exposed through the HTTPRoute
 - MongoDB uses the `csi-standard` StorageClass
 - backend services are created as StatefulSets with a Mongo wait init container
+

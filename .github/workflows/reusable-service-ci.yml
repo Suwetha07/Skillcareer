@@ -60,22 +60,23 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build Image
-        run: docker build -t ${{ inputs.image_name }}:${{ github.sha }} -t ${{ inputs.image_name }}:v1.0.0 ${{ inputs.context_path }}
+        run: docker build -t ${{ inputs.image_name }}:${{ github.sha }} -t ${{ inputs.image_name }}:v1.0.1 ${{ inputs.context_path }}
       - name: Snyk Container Scan
         uses: snyk/actions/docker@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          image: ${{ inputs.image_name }}:v1.0.0
+          image: ${{ inputs.image_name }}:v1.0.1
           args: --severity-threshold=high
       - name: Trivy Image Scan
         uses: aquasecurity/trivy-action@0.24.0
         with:
-          image-ref: ${{ inputs.image_name }}:v1.0.0
+          image-ref: ${{ inputs.image_name }}:v1.0.1
           format: table
           severity: HIGH,CRITICAL
           exit-code: ''1''
       - name: Push Image
         run: |
           docker push ${{ inputs.image_name }}:${{ github.sha }}
-          docker push ${{ inputs.image_name }}:v1.0.0
+          docker push ${{ inputs.image_name }}:v1.0.1
+
