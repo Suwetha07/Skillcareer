@@ -1,0 +1,150 @@
+name: devsecops-delivery
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service_name: frontend
+            context_path: frontend
+            image_name: suwetha07/skillcareer-frontend
+            build_args: --build-arg VITE_API_BASE_URL=/api
+          - service_name: api-gateway
+            context_path: api-gateway
+            image_name: suwetha07/skillcareer-api-gateway
+            build_args: ""
+          - service_name: user-service
+            context_path: services/user-service
+            image_name: suwetha07/skillcareer-user-service
+            build_args: ""
+          - service_name: career-service
+            context_path: services/career-service
+            image_name: suwetha07/skillcareer-career-service
+            build_args: ""
+          - service_name: skill-service
+            context_path: services/skill-service
+            image_name: suwetha07/skillcareer-skill-service
+            build_args: ""
+          - service_name: roadmap-service
+            context_path: services/roadmap-service
+            image_name: suwetha07/skillcareer-roadmap-service
+            build_args: ""
+          - service_name: content-service
+            context_path: services/content-service
+            image_name: suwetha07/skillcareer-content-service
+            build_args: ""
+          - service_name: progress-service
+            context_path: services/progress-service
+            image_name: suwetha07/skillcareer-progress-service
+            build_args: ""
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        working-directory: ${{ matrix.context_path }}
+        run: npm ci
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.projectKey=${{ matrix.service_name }}
+            -Dsonar.projectName=${{ matrix.service_name }}
+            -Dsonar.sources=${{ matrix.context_path }}
+      - name: Trivy Filesystem Scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: fs
+          scan-ref: ${{ matrix.context_path }}
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+      - name: Snyk Code Scan
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: test
+          args: --all-projects
+      - name: Docker Login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build image
+        run: docker build ${{ matrix.build_args }} -t ${{ matrix.image_name }}:${{ github.sha }} ${{ matrix.context_path }}
+      - name: Trivy Image Scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: ${{ matrix.image_name }}:${{ github.sha }}
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+      - name: Push image
+        run: docker push ${{ matrix.image_name }}:${{ github.sha }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-scan
+    environment: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+    env:
+      NAMESPACE: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+      RELEASE_NAME: ${{ github.ref_name == 'main' && 'skillcareer-prod' || 'skillcareer-dev' }}
+      STORAGE_SERVER: ${{ github.ref_name == 'main' && secrets.PROD_NFS_SERVER || secrets.DEV_NFS_SERVER }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-kubectl@v4
+      - uses: azure/setup-helm@v4
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${KUBECONFIG_B64}" | base64 -d > $HOME/.kube/config
+        env:
+          KUBECONFIG_B64: ${{ secrets.KUBECONFIG_B64 }}
+      - name: Create namespace
+        run: kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
+      - name: Create application secret
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MONGO_ROOT_USERNAME: ${{ secrets.MONGO_ROOT_USERNAME }}
+          MONGO_ROOT_PASSWORD: ${{ secrets.MONGO_ROOT_PASSWORD }}
+        run: |
+          kubectl -n $NAMESPACE create secret generic skillcareer-secrets \
+            --from-literal=MONGO_ROOT_USERNAME="$MONGO_ROOT_USERNAME" \
+            --from-literal=MONGO_ROOT_PASSWORD="$MONGO_ROOT_PASSWORD" \
+            --from-literal=JWT_SECRET="$JWT_SECRET" \
+            --from-literal=USER_SERVICE_MONGO_URI="mongodb://$MONGO_ROOT_USERNAME:$MONGO_ROOT_PASSWORD@mongodb.$NAMESPACE.svc.cluster.local:27017/skillcareer-user?authSource=admin" \
+            --from-literal=CAREER_SERVICE_MONGO_URI="mongodb://$MONGO_ROOT_USERNAME:$MONGO_ROOT_PASSWORD@mongodb.$NAMESPACE.svc.cluster.local:27017/skillcareer-career?authSource=admin" \
+            --from-literal=SKILL_SERVICE_MONGO_URI="mongodb://$MONGO_ROOT_USERNAME:$MONGO_ROOT_PASSWORD@mongodb.$NAMESPACE.svc.cluster.local:27017/skillcareer-skill?authSource=admin" \
+            --from-literal=ROADMAP_SERVICE_MONGO_URI="mongodb://$MONGO_ROOT_USERNAME:$MONGO_ROOT_PASSWORD@mongodb.$NAMESPACE.svc.cluster.local:27017/skillcareer-roadmap?authSource=admin" \
+            --from-literal=CONTENT_SERVICE_MONGO_URI="mongodb://$MONGO_ROOT_USERNAME:$MONGO_ROOT_PASSWORD@mongodb.$NAMESPACE.svc.cluster.local:27017/skillcareer-content?authSource=admin" \
+            --from-literal=PROGRESS_SERVICE_MONGO_URI="mongodb://$MONGO_ROOT_USERNAME:$MONGO_ROOT_PASSWORD@mongodb.$NAMESPACE.svc.cluster.local:27017/skillcareer-progress?authSource=admin" \
+            --dry-run=client -o yaml | kubectl apply -f -
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install $RELEASE_NAME ./k8s/helm/skillcareer \
+            -f ./k8s/$NAMESPACE/values.yaml \
+            --namespace $NAMESPACE \
+            --create-namespace \
+            --set storageClass.parameters.server=$STORAGE_SERVER \
+            --set frontend.tag=${{ github.sha }} \
+            --set apiGateway.tag=${{ github.sha }} \
+            --set backends[0].tag=${{ github.sha }} \
+            --set backends[1].tag=${{ github.sha }} \
+            --set backends[2].tag=${{ github.sha }} \
+            --set backends[3].tag=${{ github.sha }} \
+            --set backends[4].tag=${{ github.sha }} \
+            --set backends[5].tag=${{ github.sha }}
+      - name: Verify deployment
+        run: kubectl get all -n $NAMESPACE

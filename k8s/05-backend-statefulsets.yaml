@@ -52,12 +52,14 @@ spec:
               cpu: 250m
               memory: 256Mi
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5001
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5001
             initialDelaySeconds: 15
             periodSeconds: 20
@@ -111,12 +113,14 @@ spec:
               cpu: 250m
               memory: 256Mi
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5002
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5002
             initialDelaySeconds: 15
             periodSeconds: 20
@@ -170,12 +174,14 @@ spec:
               cpu: 250m
               memory: 256Mi
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5003
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5003
             initialDelaySeconds: 15
             periodSeconds: 20
@@ -229,12 +235,14 @@ spec:
               cpu: 250m
               memory: 256Mi
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5004
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5004
             initialDelaySeconds: 15
             periodSeconds: 20
@@ -288,12 +296,14 @@ spec:
               cpu: 250m
               memory: 256Mi
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5005
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5005
             initialDelaySeconds: 15
             periodSeconds: 20
@@ -347,12 +357,14 @@ spec:
               cpu: 250m
               memory: 256Mi
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5006
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5006
             initialDelaySeconds: 15
             periodSeconds: 20
@@ -411,12 +423,14 @@ spec:
               cpu: 250m
               memory: 256Mi
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5001
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5001
             initialDelaySeconds: 15
             periodSeconds: 20
@@ -470,12 +484,14 @@ spec:
               cpu: 250m
               memory: 256Mi
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5002
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5002
             initialDelaySeconds: 15
             periodSeconds: 20
@@ -529,12 +545,14 @@ spec:
               cpu: 250m
               memory: 256Mi
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5003
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5003
             initialDelaySeconds: 15
             periodSeconds: 20
@@ -588,12 +606,14 @@ spec:
               cpu: 250m
               memory: 256Mi
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5004
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5004
             initialDelaySeconds: 15
             periodSeconds: 20
@@ -647,12 +667,14 @@ spec:
               cpu: 250m
               memory: 256Mi
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5005
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5005
             initialDelaySeconds: 15
             periodSeconds: 20
@@ -706,13 +728,17 @@ spec:
               cpu: 250m
               memory: 256Mi
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5006
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 5006
             initialDelaySeconds: 15
             periodSeconds: 20
+
+
 

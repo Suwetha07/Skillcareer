@@ -9,6 +9,19 @@ Helm install:
 1. `helm upgrade --install skillcareer-dev ./k8s/helm/skillcareer -f ./k8s/dev/values.yaml -n dev --create-namespace`
 2. `helm upgrade --install skillcareer-prod ./k8s/helm/skillcareer -f ./k8s/prod/values.yaml -n prod --create-namespace`
 
+Important:
+- Kubernetes application secrets are not committed in this repo
+- `skillcareer-secrets` must be created by CI/CD or manually before deployment
+- each service now uses a separate Mongo database name
+
+Mongo databases:
+- user-service -> `skillcareer-user`
+- career-service -> `skillcareer-career`
+- skill-service -> `skillcareer-skill`
+- roadmap-service -> `skillcareer-roadmap`
+- content-service -> `skillcareer-content`
+- progress-service -> `skillcareer-progress`
+
 Docker images used:
 - suwetha07/skillcareer-frontend:v1.0.1
 - suwetha07/skillcareer-api-gateway:v1.0.1
@@ -19,20 +32,9 @@ Docker images used:
 - suwetha07/skillcareer-content-service:v1.0.1
 - suwetha07/skillcareer-progress-service:v1.0.1
 
-Project ports:
-- frontend: 5173
-- api-gateway: 5000
-- user-service: 5001
-- career-service: 5002
-- skill-service: 5003
-- roadmap-service: 5004
-- content-service: 5005
-- progress-service: 5006
-
 Notes:
 - frontend-ui is exposed through the Gateway `/` route
 - API Gateway is exposed through `/api`
-- direct backend routes are also exposed through the HTTPRoute
-- MongoDB uses the `csi-standard` StorageClass
-- backend services are created as StatefulSets with a Mongo wait init container
-
+- all backend services expose `/health` for readiness and liveness probes
+- MongoDB uses PVC through the `csi-standard` StorageClass
+- GitHub Actions deploys `develop -> dev` and `main -> prod`

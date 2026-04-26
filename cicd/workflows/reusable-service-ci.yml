@@ -12,6 +12,10 @@ on:
       image_name:
         required: true
         type: string
+      image_tag:
+        required: false
+        type: string
+        default: v1.0.1
 
 jobs:
   quality-security:
@@ -60,23 +64,22 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build Image
-        run: docker build -t ${{ inputs.image_name }}:${{ github.sha }} -t ${{ inputs.image_name }}:v1.0.1 ${{ inputs.context_path }}
+        run: docker build -t ${{ inputs.image_name }}:${{ github.sha }} -t ${{ inputs.image_name }}:${{ inputs.image_tag }} ${{ inputs.context_path }}
       - name: Snyk Container Scan
         uses: snyk/actions/docker@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          image: ${{ inputs.image_name }}:v1.0.1
+          image: ${{ inputs.image_name }}:${{ github.sha }}
           args: --severity-threshold=high
       - name: Trivy Image Scan
         uses: aquasecurity/trivy-action@0.24.0
         with:
-          image-ref: ${{ inputs.image_name }}:v1.0.1
+          image-ref: ${{ inputs.image_name }}:${{ github.sha }}
           format: table
           severity: HIGH,CRITICAL
           exit-code: '1'
       - name: Push Image
         run: |
           docker push ${{ inputs.image_name }}:${{ github.sha }}
-          docker push ${{ inputs.image_name }}:v1.0.1
-
+          docker push ${{ inputs.image_name }}:${{ inputs.image_tag }}

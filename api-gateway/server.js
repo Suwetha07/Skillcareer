@@ -4,10 +4,18 @@ const jwt = require('jsonwebtoken');
 const app = express();
 
 const API_PORT = process.env.PORT || 5000;
-const JWT_SECRET = process.env.JWT_SECRET || 'shared-secret';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 app.use(cors());
 app.use(express.json());
+
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', service: 'api-gateway' });
+});
 
 function verifyJwt(req, res, next) {
   if (req.method === 'OPTIONS') return next();
@@ -62,3 +70,4 @@ Object.entries(serviceRoutes).forEach(([name, url]) => {
 app.listen(API_PORT, () => {
   console.log(`API Gateway running on port ${API_PORT}`);
 });
+

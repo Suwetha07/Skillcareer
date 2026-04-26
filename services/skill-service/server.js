@@ -14,6 +14,10 @@ let useFallbackData = false;
 app.use(cors());
 app.use(express.json());
 
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', service: 'skill-service', datastore: useFallbackData ? 'memory' : 'mongodb' });
+});
+
 async function initializeDataSource() {
   if (!MONGO_URI && USE_IN_MEMORY_FALLBACK) {
     useFallbackData = true;
@@ -59,3 +63,4 @@ app.post('/analyze', async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Skill Service running on port ${PORT}`));
+

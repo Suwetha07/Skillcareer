@@ -36,6 +36,12 @@ spec:
         - name: {{ .name }}
           image: {{ .image }}:{{ .tag }}
           imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop: ["ALL"]
           ports:
             - containerPort: {{ .port }}
           env:
@@ -44,7 +50,7 @@ spec:
             - name: MONGO_URI
               valueFrom:
                 secretKeyRef:
-                  name: skillcareer-secrets
+                  name: {{ $.Values.secrets.existingSecretName }}
                   key: {{ .mongoSecretKey }}
             - name: USE_IN_MEMORY_FALLBACK
               valueFrom:
@@ -55,8 +61,22 @@ spec:
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: skillcareer-secrets
+                  name: {{ $.Values.secrets.existingSecretName }}
                   key: JWT_SECRET
 {{- end }}
+          resources:
+{{ toYaml $.Values.resources.backend | indent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .port }}
+            initialDelaySeconds: {{ $.Values.probes.backend.readinessInitialDelaySeconds }}
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .port }}
+            initialDelaySeconds: {{ $.Values.probes.backend.livenessInitialDelaySeconds }}
+            periodSeconds: 20
 ---
 {{- end }}

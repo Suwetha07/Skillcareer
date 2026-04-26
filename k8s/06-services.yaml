@@ -21,7 +21,7 @@ spec:
     app: frontend-ui
   ports:
     - port: 80
-      targetPort: 5173
+      targetPort: 8080
   type: ClusterIP
 ---
 apiVersion: v1
@@ -125,7 +125,7 @@ spec:
     app: frontend-ui
   ports:
     - port: 80
-      targetPort: 5173
+      targetPort: 8080
   type: ClusterIP
 ---
 apiVersion: v1
@@ -205,3 +205,4 @@ spec:
   ports:
     - port: 5006
       targetPort: 5006
+

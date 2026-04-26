@@ -18,15 +18,16 @@ config:
   VITE_API_BASE_URL: /api
   USE_IN_MEMORY_FALLBACK: "false"
 secrets:
-  mongoRootUsername: admin
-  mongoRootPassword: admin123
-  jwtSecret: shared-secret
-  userMongoUri: mongodb://admin:admin123@mongodb.prod.svc.cluster.local:27017/skillcareer?authSource=admin
-  careerMongoUri: mongodb://admin:admin123@mongodb.prod.svc.cluster.local:27017/skillcareer?authSource=admin
-  skillMongoUri: mongodb://admin:admin123@mongodb.prod.svc.cluster.local:27017/skillcareer?authSource=admin
-  roadmapMongoUri: mongodb://admin:admin123@mongodb.prod.svc.cluster.local:27017/skillcareer?authSource=admin
-  contentMongoUri: mongodb://admin:admin123@mongodb.prod.svc.cluster.local:27017/skillcareer?authSource=admin
-  progressMongoUri: mongodb://admin:admin123@mongodb.prod.svc.cluster.local:27017/skillcareer?authSource=admin
+  existingSecretName: skillcareer-secrets
+  create: false
+  data: {}
+databases:
+  user: skillcareer-user
+  career: skillcareer-career
+  skill: skillcareer-skill
+  roadmap: skillcareer-roadmap
+  content: skillcareer-content
+  progress: skillcareer-progress
 mongo:
   image: mongo:7
   size: 1Gi
@@ -91,4 +92,45 @@ hpa:
     minReplicas: 1
     maxReplicas: 5
     averageUtilization: 50
-
+resources:
+  frontend:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 256Mi
+  apiGateway:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+  backend:
+    requests:
+      cpu: 25m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+  mongo:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+probes:
+  frontend:
+    readinessInitialDelaySeconds: 5
+    livenessInitialDelaySeconds: 15
+  apiGateway:
+    readinessInitialDelaySeconds: 5
+    livenessInitialDelaySeconds: 15
+  backend:
+    readinessInitialDelaySeconds: 5
+    livenessInitialDelaySeconds: 15
+  mongo:
+    readinessInitialDelaySeconds: 10
+    livenessInitialDelaySeconds: 20

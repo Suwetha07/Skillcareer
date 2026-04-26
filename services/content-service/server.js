@@ -159,6 +159,10 @@ function buildCourse(skill) {
 app.use(cors());
 app.use(express.json());
 
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', service: 'content-service', datastore: useFallbackData ? 'memory' : 'mongodb' });
+});
+
 async function initializeDataSource() {
   if (!MONGO_URI && USE_IN_MEMORY_FALLBACK) {
     useFallbackData = true;
@@ -258,3 +262,4 @@ app.post('/assignment/submit', async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Content Service running on port ${PORT}`));
+

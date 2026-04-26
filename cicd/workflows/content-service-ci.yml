@@ -3,8 +3,8 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - ''services/content-service/**''
-      - ''cicd/workflows/content-service-ci.yml''
+      - 'services/content-service/**'
+      - 'cicd/workflows/content-service-ci.yml'
 jobs:
   run:
     uses: ./cicd/workflows/reusable-service-ci.yml

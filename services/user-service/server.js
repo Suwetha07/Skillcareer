@@ -9,13 +9,21 @@ const User = require('./models/User');
 const app = express();
 const PORT = process.env.PORT || 5001;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/user-service';
-const JWT_SECRET = process.env.JWT_SECRET || 'shared-secret';
+const JWT_SECRET = process.env.JWT_SECRET;
 const USE_IN_MEMORY_FALLBACK = process.env.USE_IN_MEMORY_FALLBACK === 'true';
 const fallbackUsers = [];
 let useFallbackData = false;
 
 app.use(cors());
 app.use(express.json());
+
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', service: 'user-service', datastore: useFallbackData ? 'memory' : 'mongodb' });
+});
 
 async function initializeDataSource() {
   if (!MONGO_URI && USE_IN_MEMORY_FALLBACK) {
@@ -143,3 +151,4 @@ app.put('/profile/update', authenticate, async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`User Service running on port ${PORT}`));
+

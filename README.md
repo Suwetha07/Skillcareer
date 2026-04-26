@@ -1,54 +1,54 @@
-# Career & Skill Intelligence Platform
+# SkillCareer DevSecOps Platform
 
-A production-grade microservices architecture application with Node.js backend services, React frontend, API gateway, and MongoDB.
+SkillCareer is a two-tier microservices application with a React UI, Node.js API services, MongoDB persistence, Docker containerization, Helm-based Kubernetes deployment, and GitHub Actions CI/CD.
 
-## Structure
+## Repository Layout
+- `frontend`
+- `api-gateway`
+- `services/user-service`
+- `services/career-service`
+- `services/skill-service`
+- `services/roadmap-service`
+- `services/content-service`
+- `services/progress-service`
+- `k8s/helm/skillcareer`
+- `k8s/dev`
+- `k8s/prod`
+- `.github/workflows`
 
-- /frontend
-- /api-gateway
-- /services/user-service
-- /services/career-service
-- /services/skill-service
-- /services/roadmap-service
-- /services/content-service
-- /services/progress-service
+## Local Development
+1. Install dependencies in each service and app folder with `npm install`.
+2. Run the services with `npm start`.
+3. Run the frontend locally with `npm run dev`.
+4. Or run the full local stack with `docker compose up --build`.
 
-## Notes
+## Docker Hardening
+- all application images use multi-stage Dockerfiles
+- Node.js containers run as the non-root `node` user
+- the frontend is built once and served by unprivileged Nginx
+- `.dockerignore` files exclude local artifacts and secrets
 
-Each service is an independent Node.js Express app with its own server, routes, models, and MongoDB connection.
-Frontend uses React, Tailwind CSS, Context API, Fetch API.
+## CI/CD and Branch Flow
+- `develop` branch deploys to the `dev` namespace
+- `main` branch deploys to the `prod` namespace
+- GitHub Actions performs SonarQube, Snyk, Trivy, and CodeQL checks
+- the deployment workflow builds images with the commit SHA, pushes them, creates Kubernetes secrets, and deploys with Helm
 
-## Startup
+## Secret Management
+- real Kubernetes secrets are not committed to the repository
+- GitHub Secrets provide `JWT_SECRET`, `MONGO_ROOT_USERNAME`, `MONGO_ROOT_PASSWORD`, `KUBECONFIG_B64`, `DEV_NFS_SERVER`, and `PROD_NFS_SERVER`
+- the deployment workflow creates `skillcareer-secrets` inside the target namespace
 
-1. Install dependencies in each folder:
-   - `cd services/user-service && npm install`
-   - `cd services/career-service && npm install`
-   - `cd services/skill-service && npm install`
-   - `cd services/roadmap-service && npm install`
-   - `cd services/content-service && npm install`
-   - `cd services/progress-service && npm install`
-   - `cd api-gateway && npm install`
-   - `cd frontend && npm install`
-2. Start each microservice and gateway separately:
-   - `npm start` in `services/user-service`
-   - `npm start` in `services/career-service`
-   - `npm start` in `services/skill-service`
-   - `npm start` in `services/roadmap-service`
-   - `npm start` in `services/content-service`
-   - `npm start` in `services/progress-service`
-   - `npm start` in `api-gateway`
-   - `npm run dev` in `frontend`
+## Kubernetes
+- `dev` and `prod` namespaces are isolated
+- Helm values are split into `k8s/dev/values.yaml` and `k8s/prod/values.yaml`
+- readiness and liveness probes use `/health` for backend services
+- MongoDB uses a StatefulSet with PVC-backed storage
+- each service uses its own Mongo database name
 
-## Service Ports
-
-- API Gateway: `5000`
-- User Service: `5001`
-- Career Service: `5002`
-- Skill Service: `5003`
-- Roadmap Service: `5004`
-- Content Service: `5005`
-- Progress Service: `5006`
-
-## Architecture
-
-The API Gateway validates JWT tokens and proxies requests to backend microservices. The frontend communicates only with `/api/*` gateway routes.
+## Verification
+- `kubectl get all -n dev`
+- `kubectl get all -n prod`
+- `kubectl get pvc -n dev`
+- `kubectl get pvc -n prod`
+- check GitHub Actions logs for SonarQube, Snyk, Trivy, and CodeQL results

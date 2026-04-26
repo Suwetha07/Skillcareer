@@ -3,8 +3,8 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - ''services/roadmap-service/**''
-      - ''cicd/workflows/roadmap-service-ci.yml''
+      - 'services/roadmap-service/**'
+      - 'cicd/workflows/roadmap-service-ci.yml'
 jobs:
   run:
     uses: ./cicd/workflows/reusable-service-ci.yml
