@@ -143,6 +143,8 @@ services:
   frontend:
     build:
       context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
     restart: unless-stopped
     env_file:
       - .env
@@ -151,7 +153,7 @@ services:
     depends_on:
       - api-gateway
     ports:
-      - "${FRONTEND_PORT}:5173"
+      - "${FRONTEND_PORT}:8080"
 
 volumes:
   mongo-data:

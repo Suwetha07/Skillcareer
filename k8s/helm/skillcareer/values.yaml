@@ -35,7 +35,7 @@ frontend:
   image: suwetha07/skillcareer-frontend
   tag: v1.0.0
   replicas: 2
-  containerPort: 5173
+  containerPort: 8080
   servicePort: 80
 apiGateway:
   name: api-gateway
