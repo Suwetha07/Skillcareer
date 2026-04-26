@@ -1,0 +1,93 @@
+namespace: dev
+storageClass:
+  enabled: true
+  name: csi-standard
+  provisioner: nfs.csi.k8s.io
+  parameters:
+    server: 10.0.1.176
+    share: /var/nfs/general
+  reclaimPolicy: Delete
+  volumeBindingMode: Immediate
+config:
+  USER_SERVICE_URL: http://user-service:5001
+  CAREER_SERVICE_URL: http://career-service:5002
+  SKILL_SERVICE_URL: http://skill-service:5003
+  ROADMAP_SERVICE_URL: http://roadmap-service:5004
+  CONTENT_SERVICE_URL: http://content-service:5005
+  PROGRESS_SERVICE_URL: http://progress-service:5006
+  VITE_API_BASE_URL: /api
+  USE_IN_MEMORY_FALLBACK: "false"
+secrets:
+  mongoRootUsername: admin
+  mongoRootPassword: admin123
+  jwtSecret: shared-secret
+  userMongoUri: mongodb://admin:admin123@mongodb.dev.svc.cluster.local:27017/skillcareer?authSource=admin
+  careerMongoUri: mongodb://admin:admin123@mongodb.dev.svc.cluster.local:27017/skillcareer?authSource=admin
+  skillMongoUri: mongodb://admin:admin123@mongodb.dev.svc.cluster.local:27017/skillcareer?authSource=admin
+  roadmapMongoUri: mongodb://admin:admin123@mongodb.dev.svc.cluster.local:27017/skillcareer?authSource=admin
+  contentMongoUri: mongodb://admin:admin123@mongodb.dev.svc.cluster.local:27017/skillcareer?authSource=admin
+  progressMongoUri: mongodb://admin:admin123@mongodb.dev.svc.cluster.local:27017/skillcareer?authSource=admin
+mongo:
+  image: mongo:7
+  size: 1Gi
+frontend:
+  name: frontend-ui
+  image: suwetha07/skillcareer-frontend
+  tag: v1.0.0
+  replicas: 2
+  containerPort: 5173
+  servicePort: 80
+apiGateway:
+  name: api-gateway
+  image: suwetha07/skillcareer-api-gateway
+  tag: v1.0.0
+  replicas: 2
+  containerPort: 5000
+  servicePort: 5000
+backends:
+  - name: user-service
+    image: suwetha07/skillcareer-user-service
+    tag: v1.0.0
+    port: 5001
+    mongoSecretKey: USER_SERVICE_MONGO_URI
+    includeJwt: true
+    routePath: /user
+  - name: career-service
+    image: suwetha07/skillcareer-career-service
+    tag: v1.0.0
+    port: 5002
+    mongoSecretKey: CAREER_SERVICE_MONGO_URI
+    routePath: /career
+  - name: skill-service
+    image: suwetha07/skillcareer-skill-service
+    tag: v1.0.0
+    port: 5003
+    mongoSecretKey: SKILL_SERVICE_MONGO_URI
+    routePath: /skill
+  - name: roadmap-service
+    image: suwetha07/skillcareer-roadmap-service
+    tag: v1.0.0
+    port: 5004
+    mongoSecretKey: ROADMAP_SERVICE_MONGO_URI
+    routePath: /roadmap
+  - name: content-service
+    image: suwetha07/skillcareer-content-service
+    tag: v1.0.0
+    port: 5005
+    mongoSecretKey: CONTENT_SERVICE_MONGO_URI
+    routePath: /content
+  - name: progress-service
+    image: suwetha07/skillcareer-progress-service
+    tag: v1.0.0
+    port: 5006
+    mongoSecretKey: PROGRESS_SERVICE_MONGO_URI
+    routePath: /progress
+gateway:
+  className: kgateway
+  name: skillcareer-gateway
+hpa:
+  frontend:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 5
+    averageUtilization: 50

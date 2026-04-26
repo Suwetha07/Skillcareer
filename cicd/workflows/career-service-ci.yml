@@ -1,0 +1,14 @@
+name: career-service-ci
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'services/career-service/**'
+      - 'cicd/workflows/career-service-ci.yml'
+jobs:
+  run:
+    uses: ./cicd/workflows/reusable-service-ci.yml
+    with:
+      service_name: career-service
+      context_path: services/career-service
+      image_name: suwetha07/skillcareer-career-service

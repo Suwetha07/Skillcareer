@@ -1,0 +1,81 @@
+name: reusable-service-ci
+
+on:
+  workflow_call:
+    inputs:
+      service_name:
+        required: true
+        type: string
+      context_path:
+        required: true
+        type: string
+      image_name:
+        required: true
+        type: string
+
+jobs:
+  quality-security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        working-directory: ${{ inputs.context_path }}
+        run: npm ci
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.projectKey=${{ inputs.service_name }}
+            -Dsonar.projectName=${{ inputs.service_name }}
+            -Dsonar.sources=${{ inputs.context_path }}
+      - name: Snyk Code Scan
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: test
+          args: --all-projects
+      - name: Trivy Filesystem Scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: fs
+          scan-ref: ${{ inputs.context_path }}
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+
+  build-scan-push:
+    runs-on: ubuntu-latest
+    needs: quality-security
+    steps:
+      - uses: actions/checkout@v4
+      - name: Docker Login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build Image
+        run: docker build -t ${{ inputs.image_name }}:${{ github.sha }} -t ${{ inputs.image_name }}:v1.0.0 ${{ inputs.context_path }}
+      - name: Snyk Container Scan
+        uses: snyk/actions/docker@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: ${{ inputs.image_name }}:v1.0.0
+          args: --severity-threshold=high
+      - name: Trivy Image Scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: ${{ inputs.image_name }}:v1.0.0
+          format: table
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+      - name: Push Image
+        run: |
+          docker push ${{ inputs.image_name }}:${{ github.sha }}
+          docker push ${{ inputs.image_name }}:v1.0.0

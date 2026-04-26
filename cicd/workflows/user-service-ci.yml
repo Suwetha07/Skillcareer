@@ -1,0 +1,14 @@
+name: user-service-ci
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'services/user-service/**'
+      - 'cicd/workflows/user-service-ci.yml'
+jobs:
+  run:
+    uses: ./cicd/workflows/reusable-service-ci.yml
+    with:
+      service_name: user-service
+      context_path: services/user-service
+      image_name: suwetha07/skillcareer-user-service
