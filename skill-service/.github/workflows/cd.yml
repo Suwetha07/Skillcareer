@@ -1,0 +1,85 @@
+name: CD
+
+on:
+  push:
+    branches: [develop, main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/skillcareer-skill-service
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      - name: Snyk Dependency Scan
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: test
+          args: --all-projects --severity-threshold=high
+
+      - name: Docker Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker Image
+        run: |
+          docker build  -t ${{ env.IMAGE_NAME }}:latest -t ${{ env.IMAGE_NAME }}:${{ github.sha }} .
+
+      - name: Trivy Image Scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+
+      - name: Push Images
+        run: |
+          docker push ${{ env.IMAGE_NAME }}:latest
+          docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p "$HOME/.kube"
+          printf '%s' '${{ secrets.KUBE_CONFIG }}' > "$HOME/.kube/config"
+
+      - name: Deploy to Kubernetes
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            NAMESPACE=prod
+            VALUES_FILE=helm/values-prod.yaml
+          else
+            NAMESPACE=dev
+            VALUES_FILE=helm/values-dev.yaml
+          fi
+          helm upgrade --install skillcareer-skill-service ./helm -f $VALUES_FILE -n $NAMESPACE --create-namespace --set image.tag=${{ github.sha }}

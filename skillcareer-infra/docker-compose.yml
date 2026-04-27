@@ -1,0 +1,159 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: skillcareer-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+    ports:
+      - "${MONGO_PORT}:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--username", "${MONGO_ROOT_USERNAME}", "--password", "${MONGO_ROOT_PASSWORD}", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  user-service:
+    build:
+      context: ./services/user-service
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      PORT: ${USER_SERVICE_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      MONGO_URI: ${USER_SERVICE_MONGO_URI}
+      USE_IN_MEMORY_FALLBACK: ${USE_IN_MEMORY_FALLBACK}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "${USER_SERVICE_PORT}:5001"
+
+  career-service:
+    build:
+      context: ./services/career-service
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      PORT: ${CAREER_SERVICE_PORT}
+      MONGO_URI: ${CAREER_SERVICE_MONGO_URI}
+      USE_IN_MEMORY_FALLBACK: ${USE_IN_MEMORY_FALLBACK}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "${CAREER_SERVICE_PORT}:5002"
+
+  skill-service:
+    build:
+      context: ./services/skill-service
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      PORT: ${SKILL_SERVICE_PORT}
+      MONGO_URI: ${SKILL_SERVICE_MONGO_URI}
+      USE_IN_MEMORY_FALLBACK: ${USE_IN_MEMORY_FALLBACK}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "${SKILL_SERVICE_PORT}:5003"
+
+  roadmap-service:
+    build:
+      context: ./services/roadmap-service
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      PORT: ${ROADMAP_SERVICE_PORT}
+      MONGO_URI: ${ROADMAP_SERVICE_MONGO_URI}
+      USE_IN_MEMORY_FALLBACK: ${USE_IN_MEMORY_FALLBACK}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "${ROADMAP_SERVICE_PORT}:5004"
+
+  content-service:
+    build:
+      context: ./services/content-service
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      PORT: ${CONTENT_SERVICE_PORT}
+      MONGO_URI: ${CONTENT_SERVICE_MONGO_URI}
+      USE_IN_MEMORY_FALLBACK: ${USE_IN_MEMORY_FALLBACK}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "${CONTENT_SERVICE_PORT}:5005"
+
+  progress-service:
+    build:
+      context: ./services/progress-service
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      PORT: ${PROGRESS_SERVICE_PORT}
+      MONGO_URI: ${PROGRESS_SERVICE_MONGO_URI}
+      USE_IN_MEMORY_FALLBACK: ${USE_IN_MEMORY_FALLBACK}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "${PROGRESS_SERVICE_PORT}:5006"
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      PORT: ${API_GATEWAY_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      USER_SERVICE_URL: ${USER_SERVICE_URL}
+      CAREER_SERVICE_URL: ${CAREER_SERVICE_URL}
+      SKILL_SERVICE_URL: ${SKILL_SERVICE_URL}
+      ROADMAP_SERVICE_URL: ${ROADMAP_SERVICE_URL}
+      CONTENT_SERVICE_URL: ${CONTENT_SERVICE_URL}
+      PROGRESS_SERVICE_URL: ${PROGRESS_SERVICE_URL}
+    depends_on:
+      - user-service
+      - career-service
+      - skill-service
+      - roadmap-service
+      - content-service
+      - progress-service
+    ports:
+      - "${API_GATEWAY_PORT}:5000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+    depends_on:
+      - api-gateway
+    ports:
+      - "${FRONTEND_PORT}:8080"
+
+volumes:
+  mongo-data:

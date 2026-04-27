@@ -1,0 +1,10 @@
+replicaCount: 1
+image:
+  repository: ghcr.io/skillcareer/skillcareer-frontend
+  tag: dev
+  pullPolicy: IfNotPresent
+service:
+  type: ClusterIP
+  port: 8080
+env:
+  NODE_ENV: development

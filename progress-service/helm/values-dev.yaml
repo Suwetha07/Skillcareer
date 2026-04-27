@@ -1,0 +1,10 @@
+replicaCount: 1
+image:
+  repository: ghcr.io/skillcareer/skillcareer-progress-service
+  tag: dev
+  pullPolicy: IfNotPresent
+service:
+  type: ClusterIP
+  port: 5006
+env:
+  NODE_ENV: development

@@ -1,0 +1,30 @@
+name: Platform CD
+
+on:
+  push:
+    branches: [develop, main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-kubectl@v4
+      - uses: azure/setup-helm@v4
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p "$HOME/.kube"
+          printf '%s' '${{ secrets.KUBE_CONFIG }}' > "$HOME/.kube/config"
+      - name: Deploy platform
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            NAMESPACE=prod
+            VALUES_FILE=k8s/prod/values.yaml
+          else
+            NAMESPACE=dev
+            VALUES_FILE=k8s/dev/values.yaml
+          fi
+          helm upgrade --install skillcareer ./helm/skillcareer -f $VALUES_FILE -n $NAMESPACE --create-namespace
