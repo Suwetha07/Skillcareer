@@ -4,5 +4,5 @@ namespace: dev
 storageClass:
   name: csi-standard
   provisioner: nfs.csi.k8s.io
-  server: 10.0.1.159
+  server: 10.0.1.176
   share: /var/nfs/general
