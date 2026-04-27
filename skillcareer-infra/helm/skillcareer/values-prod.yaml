@@ -1,0 +1,12 @@
+﻿global:
+  environment: prod
+namespace: prod
+frontend:
+  replicas: 2
+apiGateway:
+  replicas: 2
+storageClass:
+  name: csi-standard
+  provisioner: nfs.csi.k8s.io
+  server: 10.0.1.176
+  share: /var/nfs/general

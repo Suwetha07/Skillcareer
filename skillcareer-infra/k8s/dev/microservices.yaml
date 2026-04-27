@@ -1,0 +1,131 @@
+﻿apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: user-service
+  namespace: dev
+spec:
+  serviceName: user-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: suwetha07/skillcareer-user-service:v1.0.1
+          ports:
+            - containerPort: 5001
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: career-service
+  namespace: dev
+spec:
+  serviceName: career-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: career-service
+  template:
+    metadata:
+      labels:
+        app: career-service
+    spec:
+      containers:
+        - name: career-service
+          image: suwetha07/skillcareer-career-service:v1.0.1
+          ports:
+            - containerPort: 5002
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: skill-service
+  namespace: dev
+spec:
+  serviceName: skill-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: skill-service
+  template:
+    metadata:
+      labels:
+        app: skill-service
+    spec:
+      containers:
+        - name: skill-service
+          image: suwetha07/skillcareer-skill-service:v1.0.1
+          ports:
+            - containerPort: 5003
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: roadmap-service
+  namespace: dev
+spec:
+  serviceName: roadmap-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: roadmap-service
+  template:
+    metadata:
+      labels:
+        app: roadmap-service
+    spec:
+      containers:
+        - name: roadmap-service
+          image: suwetha07/skillcareer-roadmap-service:v1.0.1
+          ports:
+            - containerPort: 5004
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: content-service
+  namespace: dev
+spec:
+  serviceName: content-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: content-service
+  template:
+    metadata:
+      labels:
+        app: content-service
+    spec:
+      containers:
+        - name: content-service
+          image: suwetha07/skillcareer-content-service:v1.0.1
+          ports:
+            - containerPort: 5005
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: progress-service
+  namespace: dev
+spec:
+  serviceName: progress-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: progress-service
+  template:
+    metadata:
+      labels:
+        app: progress-service
+    spec:
+      containers:
+        - name: progress-service
+          image: suwetha07/skillcareer-progress-service:v1.0.1
+          ports:
+            - containerPort: 5006

@@ -1,4 +1,4 @@
-apiVersion: v1
+﻿apiVersion: v1
 kind: ConfigMap
 metadata:
   name: skillcareer-config
@@ -11,3 +11,4 @@ data:
   CONTENT_SERVICE_URL: http://content-service:5005
   PROGRESS_SERVICE_URL: http://progress-service:5006
   VITE_API_BASE_URL: /api
+  USE_IN_MEMORY_FALLBACK: "false"

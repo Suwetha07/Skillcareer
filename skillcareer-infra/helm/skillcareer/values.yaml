@@ -1,9 +1,124 @@
 ﻿global:
   environment: dev
-
+namespace: dev
 secrets:
   create: true
   name: skillcareer-secret
   data:
-    MONGO_URI: mongodb://mongodb:27017/skillcareer
     JWT_SECRET: shared-secret
+    MONGO_URI: mongodb://mongodb:27017/skillcareer
+    MONGO_ROOT_USERNAME: admin
+    MONGO_ROOT_PASSWORD: admin123
+config:
+  USER_SERVICE_URL: http://user-service:5001
+  CAREER_SERVICE_URL: http://career-service:5002
+  SKILL_SERVICE_URL: http://skill-service:5003
+  ROADMAP_SERVICE_URL: http://roadmap-service:5004
+  CONTENT_SERVICE_URL: http://content-service:5005
+  PROGRESS_SERVICE_URL: http://progress-service:5006
+  VITE_API_BASE_URL: /api
+  USE_IN_MEMORY_FALLBACK: "false"
+gateway:
+  name: skillcareer-gateway
+  className: kgateway
+apiGateway:
+  name: api-gateway
+  image: suwetha07/skillcareer-api-gateway
+  tag: v1.0.1
+  replicas: 1
+  servicePort: 5000
+  containerPort: 5000
+frontend:
+  name: frontend-ui
+  image: suwetha07/skillcareer-frontend
+  tag: v1.0.1
+  replicas: 1
+  servicePort: 80
+  containerPort: 8080
+mongo:
+  image: mongo:7
+  size: 1Gi
+storageClass:
+  name: csi-standard
+  provisioner: nfs.csi.k8s.io
+  server: 10.0.1.159
+  share: /var/nfs/general
+resources:
+  apiGateway:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+  frontend:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+  backend:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+  mongo:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+probes:
+  apiGateway:
+    readinessInitialDelaySeconds: 5
+    livenessInitialDelaySeconds: 15
+  frontend:
+    readinessInitialDelaySeconds: 5
+    livenessInitialDelaySeconds: 15
+  backend:
+    readinessInitialDelaySeconds: 5
+    livenessInitialDelaySeconds: 15
+  mongo:
+    readinessInitialDelaySeconds: 10
+    livenessInitialDelaySeconds: 20
+backends:
+  - name: user-service
+    routePath: /user
+    image: suwetha07/skillcareer-user-service
+    tag: v1.0.1
+    port: 5001
+    includeJwt: false
+  - name: career-service
+    routePath: /career
+    image: suwetha07/skillcareer-career-service
+    tag: v1.0.1
+    port: 5002
+    includeJwt: false
+  - name: skill-service
+    routePath: /skill
+    image: suwetha07/skillcareer-skill-service
+    tag: v1.0.1
+    port: 5003
+    includeJwt: false
+  - name: roadmap-service
+    routePath: /roadmap
+    image: suwetha07/skillcareer-roadmap-service
+    tag: v1.0.1
+    port: 5004
+    includeJwt: false
+  - name: content-service
+    routePath: /content
+    image: suwetha07/skillcareer-content-service
+    tag: v1.0.1
+    port: 5005
+    includeJwt: false
+  - name: progress-service
+    routePath: /progress
+    image: suwetha07/skillcareer-progress-service
+    tag: v1.0.1
+    port: 5006
+    includeJwt: false

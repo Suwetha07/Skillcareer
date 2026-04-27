@@ -1,47 +1,48 @@
-apiVersion: gateway.networking.k8s.io/v1
-kind: Gateway
+﻿{{- $namespace := .Values.namespace | default .Release.Namespace -}}
+{{- $api := .Values.apiGateway | default dict -}}
+{{- $secretName := ((.Values.secrets | default dict).name) | default "skillcareer-secret" -}}
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: {{ .Values.gateway.name }}
-  namespace: {{ .Values.namespace }}
+  name: {{ get $api "name" | default "api-gateway" }}
+  namespace: {{ $namespace }}
 spec:
-  gatewayClassName: {{ .Values.gateway.className }}
-  listeners:
-    - name: http
-      protocol: HTTP
-      port: 80
-      allowedRoutes:
-        namespaces:
-          from: Same
+  replicas: {{ get $api "replicas" | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ get $api "name" | default "api-gateway" }}
+  template:
+    metadata:
+      labels:
+        app: {{ get $api "name" | default "api-gateway" }}
+    spec:
+      containers:
+        - name: {{ get $api "name" | default "api-gateway" }}
+          image: {{ printf "%s:%s" (get $api "image" | default "suwetha07/skillcareer-api-gateway") (get $api "tag" | default "latest") }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ get $api "containerPort" | default 5000 }}
+          envFrom:
+            - configMapRef:
+                name: skillcareer-config
+          env:
+            - name: PORT
+              value: {{ (get $api "containerPort" | default 5000) | quote }}
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: JWT_SECRET
 ---
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
+apiVersion: v1
+kind: Service
 metadata:
-  name: skillcareer-route
-  namespace: {{ .Values.namespace }}
+  name: {{ get $api "name" | default "api-gateway" }}
+  namespace: {{ $namespace }}
 spec:
-  parentRefs:
-    - name: {{ .Values.gateway.name }}
-  rules:
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /api
-      backendRefs:
-        - name: {{ .Values.apiGateway.name }}
-          port: {{ .Values.apiGateway.servicePort }}
-{{- range .Values.backends }}
-    - matches:
-        - path:
-            type: PathPrefix
-            value: {{ .routePath }}
-      backendRefs:
-        - name: {{ .name }}
-          port: {{ .port }}
-{{- end }}
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /
-      backendRefs:
-        - name: {{ .Values.frontend.name }}
-          port: {{ .Values.frontend.servicePort }}
+  selector:
+    app: {{ get $api "name" | default "api-gateway" }}
+  ports:
+    - port: {{ get $api "servicePort" | default 5000 }}
+      targetPort: {{ get $api "containerPort" | default 5000 }}
+  type: ClusterIP

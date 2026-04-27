@@ -1,9 +1,16 @@
+﻿{{- $namespace := .Values.namespace | default .Release.Namespace -}}
+{{- $config := .Values.config | default dict -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: skillcareer-config
-  namespace: {{ .Values.namespace }}
+  namespace: {{ $namespace }}
 data:
-{{- range $key, $value := .Values.config }}
-  {{ $key }}: {{ $value | quote }}
-{{- end }}
+  USER_SERVICE_URL: {{ get $config "USER_SERVICE_URL" | default "http://user-service:5001" | quote }}
+  CAREER_SERVICE_URL: {{ get $config "CAREER_SERVICE_URL" | default "http://career-service:5002" | quote }}
+  SKILL_SERVICE_URL: {{ get $config "SKILL_SERVICE_URL" | default "http://skill-service:5003" | quote }}
+  ROADMAP_SERVICE_URL: {{ get $config "ROADMAP_SERVICE_URL" | default "http://roadmap-service:5004" | quote }}
+  CONTENT_SERVICE_URL: {{ get $config "CONTENT_SERVICE_URL" | default "http://content-service:5005" | quote }}
+  PROGRESS_SERVICE_URL: {{ get $config "PROGRESS_SERVICE_URL" | default "http://progress-service:5006" | quote }}
+  VITE_API_BASE_URL: {{ get $config "VITE_API_BASE_URL" | default "/api" | quote }}
+  USE_IN_MEMORY_FALLBACK: {{ get $config "USE_IN_MEMORY_FALLBACK" | default "false" | quote }}
