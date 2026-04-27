@@ -1,51 +1,60 @@
-name: CI
+name: CI - skill-service
 
 on:
   push:
-    branches: [develop, main]
+    branches: ["develop", "main"]
   pull_request:
-    branches: [develop, main]
+    branches: ["develop", "main"]
+
+env:
+  SERVICE_NAME: skill-service
+  DOCKERHUB_REPO: your-dockerhub-username/skill-service
 
 jobs:
   ci:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
+
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: npm
+          node-version: 18
 
-      - name: Install Dependencies
-        run: npm install
+      - run: npm install
+      - run: npm run lint
+      - run: npm test
 
-      - name: Lint
-        run: npm run lint --if-present
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
-      - name: Unit Tests
-        run: npm test --if-present
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: javascript
-
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
-
-      - name: Analyze
-        uses: github/codeql-action/analyze@v3
-
-      - name: Snyk Dependency Scan
+      - name: Snyk Scan
         uses: snyk/actions/node@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Build Docker Image
+        run: |
+          docker build -t ghcr.io/${{ github.repository_owner }}/${SERVICE_NAME}:${GITHUB_SHA} .
+
+      - name: Trivy Scan
+        uses: aquasecurity/trivy-action@0.20.0
         with:
-          command: test
-          args: --all-projects --severity-threshold=high
+          image-ref: ghcr.io/${{ github.repository_owner }}/${SERVICE_NAME}:${{ github.sha }}
+
+      - name: Push Image
+        run: docker push ghcr.io/${{ github.repository_owner }}/${SERVICE_NAME}:${GITHUB_SHA}
+
+      - name: Notify Failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          payload: |
+            {
+              "text": "CI FAILED in ${{ github.repository }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
