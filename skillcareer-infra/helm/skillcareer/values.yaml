@@ -7,8 +7,6 @@ secrets:
   data:
     JWT_SECRET: shared-secret
     MONGO_URI: mongodb://mongodb:27017/skillcareer
-    MONGO_ROOT_USERNAME: admin
-    MONGO_ROOT_PASSWORD: admin123
 config:
   USER_SERVICE_URL: http://user-service:5001
   CAREER_SERVICE_URL: http://career-service:5002
