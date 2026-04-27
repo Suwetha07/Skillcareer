@@ -1,2 +1,9 @@
-global:
+﻿global:
   environment: dev
+
+secrets:
+  create: true
+  name: skillcareer-secret
+  data:
+    MONGO_URI: mongodb://mongodb:27017/skillcareer
+    JWT_SECRET: shared-secret
