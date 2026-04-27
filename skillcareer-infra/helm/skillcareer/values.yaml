@@ -29,7 +29,7 @@ apiGateway:
 frontend:
   name: frontend-ui
   image: suwetha07/skillcareer-frontend
-  tag: v1.0.1
+  tag: v1.0.2
   replicas: 1
   servicePort: 80
   containerPort: 8080
