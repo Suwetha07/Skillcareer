@@ -1,0 +1,7 @@
+name: skillcareer-api-gateway
+namespace: prod
+image:
+  repository: suwetha07/skillcareer-api-gateway
+  tag: v1.0.1
+service:
+  port: 5000

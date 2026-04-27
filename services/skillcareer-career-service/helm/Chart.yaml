@@ -1,0 +1,6 @@
+apiVersion: v2
+name: skillcareer-career-service
+description: Helm chart for skillcareer-career-service
+type: application
+version: 0.1.0
+appVersion: "v1.0.1"

@@ -1,0 +1,7 @@
+name: skillcareer-roadmap-service
+namespace: prod
+image:
+  repository: suwetha07/skillcareer-roadmap-service
+  tag: v1.0.1
+service:
+  port: 5004

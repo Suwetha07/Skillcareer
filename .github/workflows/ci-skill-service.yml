@@ -1,0 +1,4 @@
+name: ci-skill-service.yml
+on:
+  workflow_dispatch:
+

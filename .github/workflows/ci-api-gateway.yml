@@ -1,0 +1,4 @@
+name: ci-api-gateway.yml
+on:
+  workflow_dispatch:
+

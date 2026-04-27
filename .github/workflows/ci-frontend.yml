@@ -1,0 +1,4 @@
+name: ci-frontend.yml
+on:
+  workflow_dispatch:
+

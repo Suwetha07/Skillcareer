@@ -1,0 +1,4 @@
+name: ci-career-service.yml
+on:
+  workflow_dispatch:
+
