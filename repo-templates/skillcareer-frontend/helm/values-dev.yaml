@@ -1,0 +1,11 @@
+name: skillcareer-frontend
+namespace: dev
+image:
+  repository: your-dockerhub/skillcareer-frontend
+  tag: latest
+service:
+  port: 80
+config:
+  SAMPLE_KEY: sample
+secrets:
+  SAMPLE_SECRET: change-me

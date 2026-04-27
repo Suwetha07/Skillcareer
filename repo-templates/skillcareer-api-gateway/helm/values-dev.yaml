@@ -1,0 +1,11 @@
+name: skillcareer-api-gateway
+namespace: dev
+image:
+  repository: your-dockerhub/skillcareer-api-gateway
+  tag: latest
+service:
+  port: 5000
+config:
+  SAMPLE_KEY: sample
+secrets:
+  SAMPLE_SECRET: change-me

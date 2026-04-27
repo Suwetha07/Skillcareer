@@ -1,0 +1,11 @@
+name: skillcareer-roadmap-service
+namespace: prod
+image:
+  repository: your-dockerhub/skillcareer-roadmap-service
+  tag: 1.0.0
+service:
+  port: 5004
+config:
+  SAMPLE_KEY: sample
+secrets:
+  SAMPLE_SECRET: change-me

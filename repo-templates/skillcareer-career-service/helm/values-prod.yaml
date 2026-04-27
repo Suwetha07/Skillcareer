@@ -1,0 +1,11 @@
+name: skillcareer-career-service
+namespace: prod
+image:
+  repository: your-dockerhub/skillcareer-career-service
+  tag: 1.0.0
+service:
+  port: 5002
+config:
+  SAMPLE_KEY: sample
+secrets:
+  SAMPLE_SECRET: change-me

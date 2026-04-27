@@ -1,0 +1,11 @@
+name: skillcareer-content-service
+namespace: dev
+image:
+  repository: your-dockerhub/skillcareer-content-service
+  tag: latest
+service:
+  port: 5005
+config:
+  SAMPLE_KEY: sample
+secrets:
+  SAMPLE_SECRET: change-me

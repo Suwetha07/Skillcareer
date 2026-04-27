@@ -1,0 +1,17 @@
+name: docker-build
+on:
+  push:
+    branches: [develop, main]
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Docker build
+        run: echo "build and push image here"
+      - name: Trivy image scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: your-dockerhub/replace-me:latest
+          severity: HIGH,CRITICAL
+          exit-code: '1'

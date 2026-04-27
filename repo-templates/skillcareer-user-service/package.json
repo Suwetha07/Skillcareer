@@ -1,0 +1,14 @@
+{
+  "name": "skillcareer-user-service",
+  "private": true,
+  "version": "1.0.0",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "lint": "echo lint placeholder",
+    "test": "echo test placeholder"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
