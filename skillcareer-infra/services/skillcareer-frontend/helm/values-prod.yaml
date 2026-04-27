@@ -1,7 +1,0 @@
-name: skillcareer-frontend
-namespace: prod
-image:
-  repository: suwetha07/skillcareer-frontend
-  tag: v1.0.1
-service:
-  port: 80

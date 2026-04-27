@@ -1,7 +1,0 @@
-name: skillcareer-content-service
-namespace: prod
-image:
-  repository: suwetha07/skillcareer-content-service
-  tag: v1.0.1
-service:
-  port: 5005

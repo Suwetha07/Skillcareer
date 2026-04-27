@@ -1,7 +1,0 @@
-name: skillcareer-progress-service
-namespace: prod
-image:
-  repository: suwetha07/skillcareer-progress-service
-  tag: v1.0.1
-service:
-  port: 5006

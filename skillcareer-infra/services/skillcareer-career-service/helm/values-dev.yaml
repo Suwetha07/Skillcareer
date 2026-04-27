@@ -1,7 +1,0 @@
-name: skillcareer-career-service
-namespace: dev
-image:
-  repository: suwetha07/skillcareer-career-service
-  tag: v1.0.1
-service:
-  port: 5002
