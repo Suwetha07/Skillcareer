@@ -36,6 +36,8 @@ frontend:
 mongo:
   image: mongo:7
   size: 1Gi
+  auth:
+    enabled: false  
 storageClass:
   name: csi-standard
   provisioner: nfs.csi.k8s.io
