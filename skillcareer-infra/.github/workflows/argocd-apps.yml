@@ -1,0 +1,56 @@
+name: ArgoCD Application Sync
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "argocd/**"
+      - "helm/skillcareer/**"
+      - ".github/workflows/argocd-apps.yml"
+  workflow_call:
+    inputs:
+      apply_dev:
+        required: false
+        type: boolean
+        default: true
+      apply_prod:
+        required: false
+        type: boolean
+        default: true
+    secrets:
+      KUBE_CONFIG:
+        required: true
+
+concurrency:
+  group: argocd-sync-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apply-apps:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Configure Kubeconfig
+        shell: bash
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        run: |
+          mkdir -p "$HOME/.kube"
+          printf "%s" "$KUBE_CONFIG" > "$HOME/.kube/config"
+          chmod 600 "$HOME/.kube/config"
+
+      - name: Apply Dev ArgoCD Application
+        if: ${{ github.event_name != 'workflow_call' || inputs.apply_dev }}
+        run: kubectl apply -f argocd/skillcareer-dev-app.yaml
+
+      - name: Apply Prod ArgoCD Application
+        if: ${{ github.event_name != 'workflow_call' || inputs.apply_prod }}
+        run: kubectl apply -f argocd/skillcareer-prod-app.yaml

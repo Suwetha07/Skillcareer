@@ -1,0 +1,93 @@
+name: Promote Image To Prod
+
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        description: "Service to promote in values-prod.yaml"
+        required: true
+        type: choice
+        options:
+          - api-gateway
+          - frontend
+          - user-service
+          - career-service
+          - skill-service
+          - roadmap-service
+          - content-service
+          - progress-service
+      image_tag:
+        description: "Image tag to promote (example: sha-abc123 or v1.2.3)"
+        required: true
+        type: string
+
+concurrency:
+  group: prod-promotion-${{ github.event.inputs.service }}
+  cancel-in-progress: false
+
+jobs:
+  approval_gate:
+    name: Manual Approval Gate
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Approval Confirmed
+        run: echo "Production approval granted."
+
+  update_values_prod:
+    name: Update values-prod.yaml
+    runs-on: ubuntu-latest
+    needs: approval_gate
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Validate Inputs
+        shell: bash
+        env:
+          SERVICE: ${{ github.event.inputs.service }}
+          IMAGE_TAG: ${{ github.event.inputs.image_tag }}
+        run: |
+          if [ -z "$SERVICE" ] || [ -z "$IMAGE_TAG" ]; then
+            echo "service and image_tag are required"
+            exit 1
+          fi
+
+      - name: Update values-prod.yaml
+        uses: mikefarah/yq@v4.44.3
+        env:
+          SERVICE: ${{ github.event.inputs.service }}
+          IMAGE_TAG: ${{ github.event.inputs.image_tag }}
+        with:
+          cmd: |
+            if [ "$SERVICE" = "api-gateway" ]; then
+              yq -i '.apiGateway.tag = strenv(IMAGE_TAG)' helm/skillcareer/values-prod.yaml
+            elif [ "$SERVICE" = "frontend" ]; then
+              yq -i '.frontend.tag = strenv(IMAGE_TAG)' helm/skillcareer/values-prod.yaml
+            else
+              yq -i '
+                .backends = (.backends // [])
+                | if any(.backends[]; .name == strenv(SERVICE))
+                  then (.backends[] | select(.name == strenv(SERVICE)).tag) = strenv(IMAGE_TAG)
+                  else .backends += [{"name": strenv(SERVICE), "tag": strenv(IMAGE_TAG)}]
+                  end
+              ' helm/skillcareer/values-prod.yaml
+            fi
+
+      - name: Commit and Push
+        shell: bash
+        run: |
+          if git diff --quiet -- helm/skillcareer/values-prod.yaml; then
+            echo "No changes detected in values-prod.yaml"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add helm/skillcareer/values-prod.yaml
+          git commit -m "promote(prod): ${{ github.event.inputs.service }} -> ${{ github.event.inputs.image_tag }}"
+          git push origin HEAD:main

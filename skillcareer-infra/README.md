@@ -4,17 +4,22 @@ This repository contains the central Helm, Kubernetes, and CI/CD assets for the 
 
 ## Included
 - `.github/workflows`
+- `argocd`
 - `helm/skillcareer`
 - `k8s/dev`
 - `k8s/prod`
 - `k8s/secret.yaml`
 - `README.md`
 
-## Notes
-- plain Kubernetes secret manifests are used
-- sealed secrets have been removed from this repo
-- deploy dev with `k8s/dev/values.yaml`
-- deploy prod with `k8s/prod/values.yaml`
+## Argo CD Deployment Model
+- `argocd/skillcareer-dev-app.yaml` deploys to `dev` namespace using:
+  - `helm/skillcareer/values.yaml`
+  - `helm/skillcareer/values-dev.yaml`
+- `argocd/skillcareer-prod-app.yaml` deploys to `prod` namespace using:
+  - `helm/skillcareer/values.yaml`
+  - `helm/skillcareer/values-prod.yaml`
+- workflow `.github/workflows/argocd-apps.yml` applies/updates the Argo CD Applications
+  on changes to Helm or Argo CD manifests.
 
 ## Required GitHub Secrets
 - `SONAR_TOKEN`

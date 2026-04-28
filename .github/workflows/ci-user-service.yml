@@ -1,4 +1,0 @@
-name: ci-user-service.yml
-on:
-  workflow_dispatch:
-

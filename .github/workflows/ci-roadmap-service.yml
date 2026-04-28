@@ -1,4 +1,0 @@
-name: ci-roadmap-service.yml
-on:
-  workflow_dispatch:
-
